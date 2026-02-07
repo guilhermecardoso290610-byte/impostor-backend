@@ -15,12 +15,31 @@ const io = new Server(server, {
 // }
 let salas = {};
 
-const palavras = [
-  "Banana", "Carro", "Escola", "Pizza", "Hospital",
-  "Cinema", "Praia", "Aeroporto", "Celular", "Computador",
-  "Cachorro", "Gato", "Brasil", "Futebol", "Hambúrguer",
-  "Dinheiro", "Hotel", "Restaurante", "Ônibus", "Avião"
-];
+// ===== TEMAS E PALAVRAS =====
+const temas = {
+  geral: [
+    "Banana", "Carro", "Escola", "Pizza", "Hospital",
+    "Cinema", "Praia", "Aeroporto", "Celular", "Computador",
+    "Cachorro", "Gato", "Brasil", "Futebol", "Hambúrguer",
+    "Dinheiro", "Hotel", "Restaurante", "Ônibus", "Avião",
+    "Shopping", "Padaria", "Supermercado", "Farmácia"
+  ],
+
+  clash: [
+    "Gigante", "Mago", "Bola de Fogo", "Corredor",
+    "Mini P.E.K.K.A", "Mosqueteira", "Príncipe",
+    "Bárbaros", "Golem", "Executor", "Flechas",
+    "Zap", "Valquíria", "Bruxa", "Dragão Bebê",
+    "Lenhador", "Balão", "Mineiro", "Mega Cavaleiro"
+  ],
+
+  jujutsu: [
+    "Gojo", "Sukuna", "Yuji", "Megumi", "Nobara",
+    "Geto", "Mahito", "Toji", "Nanami",
+    "Domínio Infinito", "Energia Amaldiçoada",
+    "Expansão de Domínio", "Seis Olhos"
+  ]
+};
 
 function gerarCodigo() {
   return Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -29,8 +48,8 @@ function gerarCodigo() {
 io.on("connection", (socket) => {
   console.log("Conectado:", socket.id);
 
-  // CRIAR SALA (ADMIN)
-  socket.on("criarSala", ({ nome }) => {
+  // ===== CRIAR SALA (ADMIN) =====
+  socket.on("criarSala", (nome) => {
     const codigo = gerarCodigo();
 
     salas[codigo] = {
@@ -41,10 +60,13 @@ io.on("connection", (socket) => {
     socket.join(codigo);
 
     socket.emit("salaCriada", codigo);
-    io.to(codigo).emit("lista", salas[codigo].jogadores);
+    io.to(codigo).emit("atualizarSala", {
+      codigo,
+      jogadores: salas[codigo].jogadores
+    });
   });
 
-  // ENTRAR NA SALA (GUEST)
+  // ===== ENTRAR NA SALA (GUEST) =====
   socket.on("entrarSala", ({ codigo, nome }) => {
     const sala = salas[codigo];
     if (!sala) return;
@@ -52,16 +74,21 @@ io.on("connection", (socket) => {
     sala.jogadores.push({ id: socket.id, nome });
     socket.join(codigo);
 
-    io.to(codigo).emit("lista", sala.jogadores);
+    io.to(codigo).emit("atualizarSala", {
+      codigo,
+      jogadores: sala.jogadores
+    });
   });
 
-  // JOGAR (SOMENTE ADMIN)
-  socket.on("jogar", (codigo) => {
+  // ===== JOGAR (SÓ ADMIN) =====
+  socket.on("jogar", ({ codigo, tema }) => {
     const sala = salas[codigo];
     if (!sala) return;
     if (socket.id !== sala.admin) return;
 
-    const palavra = palavras[Math.floor(Math.random() * palavras.length)];
+    const listaPalavras = temas[tema] || temas.geral;
+    const palavra =
+      listaPalavras[Math.floor(Math.random() * listaPalavras.length)];
 
     // SEMPRE escolhe 1 impostor
     const impostor =
@@ -76,7 +103,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  // EXPULSAR JOGADOR (ADMIN)
+  // ===== EXPULSAR JOGADOR (ADMIN) =====
   socket.on("expulsar", ({ codigo, jogadorId }) => {
     const sala = salas[codigo];
     if (!sala) return;
@@ -87,17 +114,20 @@ io.on("connection", (socket) => {
     io.to(jogadorId).emit("expulso");
     io.sockets.sockets.get(jogadorId)?.leave(codigo);
 
-    io.to(codigo).emit("lista", sala.jogadores);
+    io.to(codigo).emit("atualizarSala", {
+      codigo,
+      jogadores: sala.jogadores
+    });
   });
 
-  // DESCONECTAR
+  // ===== DESCONECTAR =====
   socket.on("disconnect", () => {
     for (const codigo in salas) {
       const sala = salas[codigo];
 
       sala.jogadores = sala.jogadores.filter(j => j.id !== socket.id);
 
-      // se admin saiu, passa admin pro primeiro da lista
+      // se admin saiu, passa admin pro primeiro
       if (sala.admin === socket.id && sala.jogadores.length > 0) {
         sala.admin = sala.jogadores[0].id;
       }
@@ -105,7 +135,10 @@ io.on("connection", (socket) => {
       if (sala.jogadores.length === 0) {
         delete salas[codigo];
       } else {
-        io.to(codigo).emit("lista", sala.jogadores);
+        io.to(codigo).emit("atualizarSala", {
+          codigo,
+          jogadores: sala.jogadores
+        });
       }
     }
   });
