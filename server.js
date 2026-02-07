@@ -6,88 +6,114 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
+  cors: { origin: "*" }
 });
 
+// Estrutura das salas
+// salas[codigo] = {
+//   admin: socketId,
+//   jogadores: [{ id, nome }]
+// }
 let salas = {};
 
+// Palavras do jogo
+const palavras = [
+  "Banana",
+  "Carro",
+  "Escola",
+  "Pizza",
+  "Hospital",
+  "Cinema",
+  "Praia",
+  "Aeroporto",
+  "Celular",
+  "Computador",
+  "Cachorro",
+  "Gato",
+  "Brasil",
+  "Futebol",
+  "Hambúrguer",
+  "Dinheiro"
+];
+
+// Gera código da sala
 function gerarCodigo() {
   return Math.random().toString(36).substring(2, 7).toUpperCase();
 }
 
-const palavras = ["Banana", "Escola", "Carro", "Pizza", "Hospital"];
-
 io.on("connection", (socket) => {
+
+  console.log("Conectado:", socket.id);
+
+  // ADMIN cria a sala
   socket.on("criarSala", ({ nome }) => {
     const codigo = gerarCodigo();
 
     salas[codigo] = {
       admin: socket.id,
-      jogadores: [{ id: socket.id, nome }],
-      palavra: "",
-      impostor: "",
+      jogadores: [{ id: socket.id, nome }]
     };
 
     socket.join(codigo);
+
     socket.emit("salaCriada", codigo);
-    io.to(codigo).emit("listaJogadores", salas[codigo].jogadores);
+    io.to(codigo).emit("lista", salas[codigo].jogadores);
   });
 
+  // GUEST entra na sala
   socket.on("entrarSala", ({ codigo, nome }) => {
-    if (!salas[codigo]) return;
-
-    salas[codigo].jogadores.push({ id: socket.id, nome });
-    socket.join(codigo);
-
-    io.to(codigo).emit("listaJogadores", salas[codigo].jogadores);
-  });
-
-  socket.on("iniciarJogo", (codigo) => {
     const sala = salas[codigo];
     if (!sala) return;
 
-    const palavra = palavras[Math.floor(Math.random() * palavras.length)];
+    sala.jogadores.push({
+      id: socket.id,
+      nome
+    });
+
+    socket.join(codigo);
+    io.to(codigo).emit("lista", sala.jogadores);
+  });
+
+  // ADMIN inicia o jogo
+  socket.on("jogar", (codigo) => {
+    const sala = salas[codigo];
+    if (!sala) return;
+
+    // Sempre escolhe UM impostor
     const impostor =
       sala.jogadores[Math.floor(Math.random() * sala.jogadores.length)];
 
-    sala.palavra = palavra;
-    sala.impostor = impostor.id;
+    const palavra =
+      palavras[Math.floor(Math.random() * palavras.length)];
 
-    sala.jogadores.forEach((jogador) => {
-      if (jogador.id === sala.impostor) {
-        io.to(jogador.id).emit("resultado", {
-          papel: "impostor",
-          palavra: "❌ Você é o impostor",
-        });
+    sala.jogadores.forEach(jogador => {
+      if (jogador.id === impostor.id) {
+        io.to(jogador.id).emit("resultado", "❌ VOCÊ É O IMPOSTOR");
       } else {
-        io.to(jogador.id).emit("resultado", {
-          papel: "civil",
-          palavra,
-        });
+        io.to(jogador.id).emit("resultado", "PALAVRA: " + palavra);
       }
     });
   });
 
+  // Desconexão
   socket.on("disconnect", () => {
     for (const codigo in salas) {
-      salas[codigo].jogadores = salas[codigo].jogadores.filter(
-        (j) => j.id !== socket.id
+      const sala = salas[codigo];
+
+      sala.jogadores = sala.jogadores.filter(
+        j => j.id !== socket.id
       );
 
-      if (salas[codigo].jogadores.length === 0) {
+      if (sala.jogadores.length === 0) {
         delete salas[codigo];
       } else {
-        io.to(codigo).emit(
-          "listaJogadores",
-          salas[codigo].jogadores
-        );
+        io.to(codigo).emit("lista", sala.jogadores);
       }
     }
   });
 });
 
-server.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("Servidor rodando na porta", PORT);
 });
