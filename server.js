@@ -10,9 +10,11 @@ const io = new Server(server, {
 });
 
 // salas[codigo] = {
-//   admin: socketId,
+//   admin,
 //   jogadores: [{ id, nome }],
-//   tema: "clashroyale"
+//   tema,
+//   ultimoImpostor,
+//   repeticoesImpostor
 // }
 let salas = {};
 
@@ -181,29 +183,36 @@ function gerarCodigo() {
 io.on("connection", (socket) => {
   console.log("Conectado:", socket.id);
 
+  // ===== CRIAR SALA =====
   socket.on("criarSala", ({ nome }) => {
     const codigo = gerarCodigo();
 
     salas[codigo] = {
       admin: socket.id,
       jogadores: [{ id: socket.id, nome }],
-      tema: "clashroyale"
+      tema: "clashroyale",
+      ultimoImpostor: null,
+      repeticoesImpostor: 0
     };
 
     socket.join(codigo);
+
     socket.emit("salaCriada", codigo);
     io.to(codigo).emit("lista", salas[codigo].jogadores);
   });
 
+  // ===== ENTRAR NA SALA =====
   socket.on("entrarSala", ({ codigo, nome }) => {
     const sala = salas[codigo];
     if (!sala) return;
 
     sala.jogadores.push({ id: socket.id, nome });
     socket.join(codigo);
+
     io.to(codigo).emit("lista", sala.jogadores);
   });
 
+  // ===== MUDAR TEMA (ADMIN) =====
   socket.on("mudarTema", ({ codigo, tema }) => {
     const sala = salas[codigo];
     if (!sala) return;
@@ -213,17 +222,45 @@ io.on("connection", (socket) => {
     sala.tema = tema;
   });
 
+  // ===== JOGAR =====
   socket.on("jogar", (codigo) => {
     const sala = salas[codigo];
     if (!sala) return;
     if (socket.id !== sala.admin) return;
-    if (sala.jogadores.length < 2) return;
+
+    if (sala.jogadores.length < 2) {
+      io.to(socket.id).emit("resultado", "⚠️ Precisa de pelo menos 2 jogadores");
+      return;
+    }
 
     const lista = temas[sala.tema] || temas.clashroyale;
     const palavra = lista[Math.floor(Math.random() * lista.length)];
-    const impostor =
-      sala.jogadores[Math.floor(Math.random() * sala.jogadores.length)];
 
+    // ===== LÓGICA ANTI-REPETIÇÃO =====
+    let candidatos = [...sala.jogadores];
+
+    if (sala.repeticoesImpostor >= 2 && sala.ultimoImpostor) {
+      candidatos = candidatos.filter(
+        j => j.id !== sala.ultimoImpostor
+      );
+    }
+
+    if (candidatos.length === 0) {
+      candidatos = [...sala.jogadores];
+    }
+
+    const impostor =
+      candidatos[Math.floor(Math.random() * candidatos.length)];
+
+    // atualiza histórico
+    if (impostor.id === sala.ultimoImpostor) {
+      sala.repeticoesImpostor++;
+    } else {
+      sala.ultimoImpostor = impostor.id;
+      sala.repeticoesImpostor = 1;
+    }
+
+    // envia resultados
     sala.jogadores.forEach(j => {
       if (j.id === impostor.id) {
         io.to(j.id).emit("resultado", "❌ VOCÊ É O IMPOSTOR");
@@ -233,20 +270,25 @@ io.on("connection", (socket) => {
     });
   });
 
+  // ===== EXPULSAR =====
   socket.on("expulsar", ({ codigo, jogadorId }) => {
     const sala = salas[codigo];
     if (!sala) return;
     if (socket.id !== sala.admin) return;
 
     sala.jogadores = sala.jogadores.filter(j => j.id !== jogadorId);
+
     io.to(jogadorId).emit("expulso");
     io.sockets.sockets.get(jogadorId)?.leave(codigo);
+
     io.to(codigo).emit("lista", sala.jogadores);
   });
 
+  // ===== DESCONECTAR =====
   socket.on("disconnect", () => {
     for (const codigo in salas) {
       const sala = salas[codigo];
+
       sala.jogadores = sala.jogadores.filter(j => j.id !== socket.id);
 
       if (sala.admin === socket.id && sala.jogadores.length > 0) {
