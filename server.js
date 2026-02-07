@@ -15,31 +15,12 @@ const io = new Server(server, {
 // }
 let salas = {};
 
-// ===== TEMAS E PALAVRAS =====
-const temas = {
-  geral: [
-    "Banana", "Carro", "Escola", "Pizza", "Hospital",
-    "Cinema", "Praia", "Aeroporto", "Celular", "Computador",
-    "Cachorro", "Gato", "Brasil", "Futebol", "Hambúrguer",
-    "Dinheiro", "Hotel", "Restaurante", "Ônibus", "Avião",
-    "Shopping", "Padaria", "Supermercado", "Farmácia"
-  ],
-
-  clash: [
-    "Gigante", "Mago", "Bola de Fogo", "Corredor",
-    "Mini P.E.K.K.A", "Mosqueteira", "Príncipe",
-    "Bárbaros", "Golem", "Executor", "Flechas",
-    "Zap", "Valquíria", "Bruxa", "Dragão Bebê",
-    "Lenhador", "Balão", "Mineiro", "Mega Cavaleiro"
-  ],
-
-  jujutsu: [
-    "Gojo", "Sukuna", "Yuji", "Megumi", "Nobara",
-    "Geto", "Mahito", "Toji", "Nanami",
-    "Domínio Infinito", "Energia Amaldiçoada",
-    "Expansão de Domínio", "Seis Olhos"
-  ]
-};
+const palavras = [
+  "Banana", "Carro", "Escola", "Pizza", "Hospital",
+  "Cinema", "Praia", "Aeroporto", "Celular", "Computador",
+  "Cachorro", "Gato", "Brasil", "Futebol", "Hambúrguer",
+  "Dinheiro", "Hotel", "Restaurante", "Ônibus", "Avião"
+];
 
 function gerarCodigo() {
   return Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -49,7 +30,7 @@ io.on("connection", (socket) => {
   console.log("Conectado:", socket.id);
 
   // ===== CRIAR SALA (ADMIN) =====
-  socket.on("criarSala", (nome) => {
+  socket.on("criarSala", ({ nome }) => {
     const codigo = gerarCodigo();
 
     salas[codigo] = {
@@ -60,10 +41,7 @@ io.on("connection", (socket) => {
     socket.join(codigo);
 
     socket.emit("salaCriada", codigo);
-    io.to(codigo).emit("atualizarSala", {
-      codigo,
-      jogadores: salas[codigo].jogadores
-    });
+    io.to(codigo).emit("lista", salas[codigo].jogadores);
   });
 
   // ===== ENTRAR NA SALA (GUEST) =====
@@ -74,21 +52,16 @@ io.on("connection", (socket) => {
     sala.jogadores.push({ id: socket.id, nome });
     socket.join(codigo);
 
-    io.to(codigo).emit("atualizarSala", {
-      codigo,
-      jogadores: sala.jogadores
-    });
+    io.to(codigo).emit("lista", sala.jogadores);
   });
 
   // ===== JOGAR (SÓ ADMIN) =====
-  socket.on("jogar", ({ codigo, tema }) => {
+  socket.on("jogar", (codigo) => {
     const sala = salas[codigo];
     if (!sala) return;
     if (socket.id !== sala.admin) return;
 
-    const listaPalavras = temas[tema] || temas.geral;
-    const palavra =
-      listaPalavras[Math.floor(Math.random() * listaPalavras.length)];
+    const palavra = palavras[Math.floor(Math.random() * palavras.length)];
 
     // SEMPRE escolhe 1 impostor
     const impostor =
@@ -114,10 +87,7 @@ io.on("connection", (socket) => {
     io.to(jogadorId).emit("expulso");
     io.sockets.sockets.get(jogadorId)?.leave(codigo);
 
-    io.to(codigo).emit("atualizarSala", {
-      codigo,
-      jogadores: sala.jogadores
-    });
+    io.to(codigo).emit("lista", sala.jogadores);
   });
 
   // ===== DESCONECTAR =====
@@ -135,10 +105,7 @@ io.on("connection", (socket) => {
       if (sala.jogadores.length === 0) {
         delete salas[codigo];
       } else {
-        io.to(codigo).emit("atualizarSala", {
-          codigo,
-          jogadores: sala.jogadores
-        });
+        io.to(codigo).emit("lista", sala.jogadores);
       }
     }
   });
