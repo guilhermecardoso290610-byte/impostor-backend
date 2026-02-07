@@ -169,7 +169,7 @@ const temas = {
     "Chainsaw Man","Tokyo Ghoul","Sword Art Online",
     "Hunter x Hunter","Fullmetal Alchemist","Haikyuu!!",
     "Your Name","A Silent Voice","Dr. Stone"
-  ]
+  ],
     
   gerais: [
   // Objetos comuns
@@ -392,4 +392,5 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
+
 
