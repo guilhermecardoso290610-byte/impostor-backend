@@ -156,7 +156,7 @@ io.on("connection", (socket) => {
 
   socket.on("jogar", () => {
     if (socket.id !== adminSocket) return;
-    if (jogadores.length < 3) return;
+    if (jogadores.length < 2) return;
 
     const palavra = palavras[Math.floor(Math.random() * palavras.length)];
     const impostor =
@@ -181,3 +181,4 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando");
 });
+
