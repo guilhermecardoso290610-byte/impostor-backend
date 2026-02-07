@@ -11,122 +11,81 @@ const io = new Server(server, {
 
 // salas[codigo] = {
 //   admin: socketId,
-//   jogadores: [{ id, nome }]
+//   jogadores: [{ id, nome }],
+//   tema: "clashroyale"
 // }
 let salas = {};
 
-const palavras = [
-"Arqueiras (3 elixir)",
-"Rei Esqueleto (4 elixir)",
-"Rainha Arqueira (5 elixir)",
-"Campeão Dourado (4 elixir)",
-"Cavaleiro (3 elixir)",
-"Mini P.E.K.K.A (4 elixir)",
-"P.E.K.K.A (7 elixir)",
-"Príncipe (5 elixir)",
-"Príncipe das Trevas (4 elixir)",
-"Valquíria (4 elixir)",
-"Gigante (5 elixir)",
-"Gigante Real (6 elixir)",
-"Gigante Elétrico (7 elixir)",
-"Golem (8 elixir)",
-"Golem de Gelo (2 elixir)",
-"Golem de Elixir (3 elixir)",
-"Balão (5 elixir)",
-"Corredor (4 elixir)",
-"Corredor Montado (5 elixir)",
-"Porcos Reais (5 elixir)",
-"Barril de Goblins (3 elixir)",
-"Goblins (2 elixir)",
-"Goblins Lanceiros (2 elixir)",
-"Goblin com Dardo (3 elixir)",
-"Goblin Gigante (6 elixir)",
-"Goblin Broca (4 elixir)",
-"Gangue de Goblins (3 elixir)",
-"Servos (3 elixir)",
-"Horda de Servos (5 elixir)",
-"Esqueletos (1 elixir)",
-"Exército de Esqueletos (3 elixir)",
-"Esqueleto Gigante (6 elixir)",
-"Morcegos (2 elixir)",
-"Bruxa (5 elixir)",
-"Bruxa Sombria (4 elixir)",
-"Mago (5 elixir)",
-"Mago Elétrico (4 elixir)",
-"Mago de Gelo (3 elixir)",
-"Mago da Fênix (4 elixir)",
-"Executor (5 elixir)",
-"Caçador (4 elixir)",
-"Mosqueteira (4 elixir)",
-"Três Mosqueteiras (9 elixir)",
-"Arqueiro Mágico (4 elixir)",
-"Bebê Dragão (4 elixir)",
-"Dragão Infernal (4 elixir)",
-"Dragão Elétrico (5 elixir)",
-"Dragão do Esqueleto (4 elixir)",
-"Mineiro (3 elixir)",
-"Mineiro Poderoso (4 elixir)",
-"Lenhador (4 elixir)",
-"Bandida (3 elixir)",
-"Fantasma Real (3 elixir)",
-"Curadora Guerreira (4 elixir)",
-"Monge (5 elixir)",
-"Fênix (4 elixir)",
-"Fisherman (3 elixir)",
-"Carrinho de Canhão (5 elixir)",
-"Carrinho de Goblins (5 elixir)",
-"Espírito de Fogo (1 elixir)",
-"Espírito de Gelo (1 elixir)",
-"Espírito Elétrico (1 elixir)",
-"Espírito Curativo (1 elixir)",
-"Guardas (3 elixir)",
-"Recrutas Reais (7 elixir)",
-"Aríete de Batalha (4 elixir)",
-"Máquina Voadora (4 elixir)",
-"Porco Gigante (6 elixir)",
-"Bola de Fogo (4 elixir)",
-"Flechas (3 elixir)",
-"Zap (2 elixir)",
-"Bola de Neve (2 elixir)",
-"Veneno (4 elixir)",
-"Relâmpago (6 elixir)",
-"Foguete (6 elixir)",
-"Terremoto (3 elixir)",
-"Clone (3 elixir)",
-"Espelho (variável)",
-"Congelamento (4 elixir)",
-"Fúria (2 elixir)",
-"Tornado (3 elixir)",
-"Cemitério (5 elixir)",
-"Barril de Bárbaro (2 elixir)",
-"Entrega Real (3 elixir)",
-"Canhão (3 elixir)",
-"Torre Tesla (4 elixir)",
-"Cabana de Goblins (5 elixir)",
-"Cabana de Bárbaros (7 elixir)",
-"Forno (4 elixir)",
-"Coletor de Elixir (6 elixir)",
-"Jaula de Goblin (4 elixir)",
-"Torre Inferno (5 elixir)",
-"Bomb Tower (4 elixir)",
-"Morteiro (4 elixir)",
-"X-Besta (6 elixir)"
-];
+/* ================== TEMAS ================== */
+
+const temas = {
+  clashroyale: [
+    "Arqueiras (3 elixir)",
+    "Rei Esqueleto (4 elixir)",
+    "Rainha Arqueira (5 elixir)",
+    "Campeão Dourado (4 elixir)",
+    "Cavaleiro (3 elixir)",
+    "Mini P.E.K.K.A (4 elixir)",
+    "P.E.K.K.A (7 elixir)",
+    "Príncipe (5 elixir)",
+    "Valquíria (4 elixir)",
+    "Gigante (5 elixir)",
+    "Balão (5 elixir)",
+    "Corredor (4 elixir)",
+    "Mineiro (3 elixir)",
+    "Bandida (3 elixir)",
+    "Foguete (6 elixir)",
+    "Tornado (3 elixir)",
+    "X-Besta (6 elixir)"
+  ],
+
+  jujutsu: [
+    "Yuji Itadori","Megumi Fushiguro","Nobara Kugisaki",
+    "Satoru Gojo","Ryomen Sukuna","Maki Zenin",
+    "Toge Inumaki","Panda","Yuta Okkotsu",
+    "Suguru Geto","Kenjaku","Mahito","Toji Fushiguro",
+    "Aoi Todo","Kinji Hakari","Hajime Kashimo",
+    "Tengen","Junpei Yoshino"
+  ],
+
+  hexatombe: [
+    "Cellbit","Abelha","Bagi","Bastet","Beamom",
+    "Calígrafo","LJoga","Rakin","Dalmo Magno",
+    "Jae-Yoon","Labirinto","Cleo Brisa","Mosto",
+    "Aniquilação","Kerberos","Zumbi de Sangue"
+  ],
+
+  filmes: [
+    "Matrix","Vingadores","Star Wars",
+    "Jurassic Park","Harry Potter",
+    "O Senhor dos Anéis","Avatar","Batman"
+  ],
+
+  animais: [
+    "Cachorro","Gato","Leão","Tigre",
+    "Elefante","Cobra","Águia","Tubarão"
+  ]
+};
+
+/* ================== FUNÇÕES ================== */
 
 function gerarCodigo() {
   return Math.random().toString(36).substring(2, 7).toUpperCase();
 }
 
+/* ================== SOCKET ================== */
+
 io.on("connection", (socket) => {
   console.log("Conectado:", socket.id);
 
-  // ===== CRIAR SALA (ADMIN) =====
+  // ===== CRIAR SALA =====
   socket.on("criarSala", ({ nome }) => {
     const codigo = gerarCodigo();
 
     salas[codigo] = {
       admin: socket.id,
-      jogadores: [{ id: socket.id, nome }]
+      jogadores: [{ id: socket.id, nome }],
+      tema: "clashroyale"
     };
 
     socket.join(codigo);
@@ -135,7 +94,7 @@ io.on("connection", (socket) => {
     io.to(codigo).emit("lista", salas[codigo].jogadores);
   });
 
-  // ===== ENTRAR NA SALA (GUEST) =====
+  // ===== ENTRAR NA SALA =====
   socket.on("entrarSala", ({ codigo, nome }) => {
     const sala = salas[codigo];
     if (!sala) return;
@@ -146,15 +105,26 @@ io.on("connection", (socket) => {
     io.to(codigo).emit("lista", sala.jogadores);
   });
 
-  // ===== JOGAR (SÓ ADMIN) =====
+  // ===== MUDAR TEMA (SÓ ADMIN) =====
+  socket.on("mudarTema", ({ codigo, tema }) => {
+    const sala = salas[codigo];
+    if (!sala) return;
+    if (socket.id !== sala.admin) return;
+    if (!temas[tema]) return;
+
+    sala.tema = tema;
+  });
+
+  // ===== JOGAR =====
   socket.on("jogar", (codigo) => {
     const sala = salas[codigo];
     if (!sala) return;
     if (socket.id !== sala.admin) return;
+    if (sala.jogadores.length < 2) return;
 
-    const palavra = palavras[Math.floor(Math.random() * palavras.length)];
+    const lista = temas[sala.tema] || temas.clashroyale;
+    const palavra = lista[Math.floor(Math.random() * lista.length)];
 
-    // SEMPRE escolhe 1 impostor
     const impostor =
       sala.jogadores[Math.floor(Math.random() * sala.jogadores.length)];
 
@@ -167,7 +137,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  // ===== EXPULSAR JOGADOR (ADMIN) =====
+  // ===== EXPULSAR =====
   socket.on("expulsar", ({ codigo, jogadorId }) => {
     const sala = salas[codigo];
     if (!sala) return;
@@ -188,7 +158,6 @@ io.on("connection", (socket) => {
 
       sala.jogadores = sala.jogadores.filter(j => j.id !== socket.id);
 
-      // se admin saiu, passa admin pro primeiro
       if (sala.admin === socket.id && sala.jogadores.length > 0) {
         sala.admin = sala.jogadores[0].id;
       }
@@ -202,9 +171,9 @@ io.on("connection", (socket) => {
   });
 });
 
+/* ================== START ================== */
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
-
-
