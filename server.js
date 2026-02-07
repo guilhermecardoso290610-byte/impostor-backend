@@ -6,9 +6,7 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: {
-    origin: "*"
-  }
+  cors: { origin: "*" }
 });
 
 const palavras = [
@@ -147,16 +145,20 @@ const palavras = [
 
 
 let jogadores = [];
+let adminSocket = null;
 
 io.on("connection", (socket) => {
   jogadores.push(socket.id);
 
+  socket.on("setAdmin", () => {
+    adminSocket = socket.id;
+  });
+
   socket.on("jogar", () => {
+    if (socket.id !== adminSocket) return;
     if (jogadores.length < 3) return;
 
-    const palavra =
-      palavras[Math.floor(Math.random() * palavras.length)];
-
+    const palavra = palavras[Math.floor(Math.random() * palavras.length)];
     const impostor =
       jogadores[Math.floor(Math.random() * jogadores.length)];
 
@@ -171,6 +173,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     jogadores = jogadores.filter(id => id !== socket.id);
+    if (socket.id === adminSocket) adminSocket = null;
   });
 });
 
@@ -178,4 +181,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando");
 });
-
