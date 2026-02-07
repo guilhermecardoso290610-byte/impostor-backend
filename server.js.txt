@@ -1,0 +1,54 @@
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+
+const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
+
+const palavras = [
+  "Abacaxi",
+  "Hospital",
+  "Aeroporto",
+  "Cinema",
+  "Praia",
+  "Escola"
+];
+
+let jogadores = [];
+
+io.on("connection", (socket) => {
+  jogadores.push(socket.id);
+
+  socket.on("jogar", () => {
+    if (jogadores.length < 3) return;
+
+    const palavra =
+      palavras[Math.floor(Math.random() * palavras.length)];
+
+    const impostor =
+      jogadores[Math.floor(Math.random() * jogadores.length)];
+
+    jogadores.forEach(id => {
+      if (id === impostor) {
+        io.to(id).emit("resultado", "IMPOSTOR");
+      } else {
+        io.to(id).emit("resultado", palavra);
+      }
+    });
+  });
+
+  socket.on("disconnect", () => {
+    jogadores = jogadores.filter(id => id !== socket.id);
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("Servidor rodando");
+});
