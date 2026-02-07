@@ -170,6 +170,88 @@ const temas = {
     "Hunter x Hunter","Fullmetal Alchemist","Haikyuu!!",
     "Your Name","A Silent Voice","Dr. Stone"
   ]
+    
+  gerais: [
+  // Objetos comuns
+  "Cadeira","Mesa","Sofá","Cama","Travesseiro","Cobertor","Tapete","Armário",
+  "Geladeira","Fogão","Micro-ondas","Forno","Liquidificador","Ventilador",
+  "Ar-condicionado","Lâmpada","Abajur","Espelho","Relógio","Calendário",
+  "Telefone","Celular","Tablet","Computador","Notebook","Monitor",
+  "Teclado","Mouse","Mousepad","Impressora","Scanner","Carregador",
+  "Cabo","Extensão","Tomada","Bateria","Controle remoto","Caixa de som",
+
+  // Papelaria / estudo
+  "Caderno","Caneta","Lápis","Borracha","Apontador","Marca-texto",
+  "Régua","Agenda","Livro","Revista","Folha","Prova","Trabalho",
+  "Mochila","Estojo",
+
+  // Lugares
+  "Casa","Apartamento","Prédio","Rua","Avenida","Bairro","Cidade","País",
+  "Escola","Faculdade","Universidade","Hospital","Clínica","Farmácia",
+  "Supermercado","Padaria","Shopping","Loja","Cinema","Teatro",
+  "Restaurante","Lanchonete","Bar","Café","Praça","Parque","Praia",
+  "Piscina","Estádio","Ginásio","Academia","Hotel","Motel","Aeroporto",
+  "Rodoviária","Porto","Estacionamento","Garagem","Posto de gasolina",
+
+  // Transporte
+  "Carro","Moto","Ônibus","Caminhão","Bicicleta","Patinete",
+  "Trem","Metrô","Avião","Helicóptero","Barco","Navio","Submarino",
+
+  // Tecnologia / internet
+  "Internet","Wi-Fi","Senha","Login","Cadastro","Perfil",
+  "Aplicativo","Site","Servidor","Nuvem","Backup","Atualização",
+  "Bug","Erro","Sistema","Programa","Arquivo","Pasta","Download",
+  "Upload","Streaming","Notificação","Mensagem","E-mail",
+  "Inteligência Artificial","Algoritmo","Banco de dados",
+
+  // Natureza
+  "Sol","Lua","Estrela","Planeta","Terra","Mar","Oceano","Rio","Lago",
+  "Cachoeira","Floresta","Selva","Mata","Deserto","Montanha","Colina",
+  "Vulcão","Neve","Gelo","Chuva","Tempestade","Vento","Furacão",
+  "Nuvem","Arco-íris","Fogo","Terra","Água","Ar",
+
+  // Animais (bem geral)
+  "Cachorro","Gato","Cavalo","Vaca","Boi","Porco","Galinha","Galo",
+  "Pato","Ovelha","Cabra","Leão","Tigre","Lobo","Raposa","Urso",
+  "Elefante","Girafa","Zebra","Rinoceronte","Hipopótamo",
+  "Macaco","Gorila","Chimpanzé","Coala","Canguru",
+  "Águia","Falcão","Coruja","Pombo","Papagaio","Arara",
+  "Peixe","Tubarão","Golfinho","Baleia","Polvo","Lula",
+  "Cobra","Lagarto","Jacaré","Crocodilo","Tartaruga",
+  "Formiga","Abelha","Mosca","Aranha","Escorpião",
+
+  // Comida e bebida
+  "Arroz","Feijão","Macarrão","Lasanha","Pizza","Hambúrguer",
+  "Batata frita","Salada","Carne","Frango","Peixe","Ovo",
+  "Pão","Bolo","Torta","Biscoito","Chocolate","Sorvete",
+  "Doce","Açúcar","Sal","Café","Chá","Leite","Suco",
+  "Refrigerante","Água","Energético",
+
+  // Ações / verbos
+  "Correr","Andar","Pular","Sentar","Levantar","Dormir","Acordar",
+  "Comer","Beber","Estudar","Trabalhar","Viajar","Dirigir",
+  "Esperar","Escolher","Decidir","Criar","Destruir","Construir",
+  "Comprar","Vender","Pagar","Economizar","Gastar",
+  "Ganhar","Perder","Vencer","Falhar",
+
+  // Conceitos / ideias
+  "Tempo","Espaço","Dinheiro","Preço","Valor","Qualidade",
+  "Velocidade","Força","Energia","Poder","Controle","Liberdade",
+  "Responsabilidade","Regra","Lei","Ordem","Caos",
+  "Problema","Solução","Plano","Objetivo","Meta","Desafio",
+  "Segredo","Mistério","Erro","Acerto","Risco","Chance",
+
+  // Emoções / estados
+  "Alegria","Felicidade","Tristeza","Raiva","Medo","Ansiedade",
+  "Calma","Estresse","Surpresa","Tédio","Sono","Cansaço",
+  "Coragem","Vergonha","Orgulho","Confiança","Dúvida",
+
+  // Coisas abstratas / ótimas pro impostor
+  "Ideia","Pensamento","Memória","Sonho","Pesadelo",
+  "História","Futuro","Passado","Presente",
+  "Realidade","Imaginação","Verdade","Mentira",
+  "Vitória","Derrota","Sucesso","Fracasso"
+]
 };
 
 /* ================== FUNÇÕES ================== */
@@ -310,3 +392,4 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
+
