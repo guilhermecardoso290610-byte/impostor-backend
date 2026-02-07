@@ -118,12 +118,7 @@ const temas = {
   ],
 
   jujutsu: [
-    "Yuji Itadori","Megumi Fushiguro","Nobara Kugisaki",
-    "Satoru Gojo","Ryomen Sukuna","Maki Zenin",
-    "Toge Inumaki","Panda","Yuta Okkotsu",
-    "Suguru Geto","Kenjaku","Mahito","Toji Fushiguro",
-    "Aoi Todo","Kinji Hakari","Hajime Kashimo",
-    "Tengen","Junpei Yoshino"
+   "Yuji Itadori", "Megumi Fushiguro", "Nobara Kugisaki", "Satoru Gojo", "Ryomen Sukuna", "Maki Zenin", "Toge Inumaki", "Panda", "Yuta Okkotsu", "Masamichi Yaga", "Kiyotaka Ijichi", "Shoko Ieiri", "Utahime Iori", "Mei Mei", "Suguru Geto", "Kenjaku", "Mahito", "Jogo", "Hanami", "Dagon", "Choso", "Toji Fushiguro", "Naobito Zenin", "Naoya Zenin", "Mai Zenin",  "Kokichi Muta", "Mechamaru", "Aoi Todo", "Kasumi Miwa", "Momo Nishimiya", "Mai Zenin", "Rika Orimoto", "Hajime Kashimo", "Kinji Hakari", "Kirara Hoshi", "Hiromi Higuruma", "Takako Uro", "Ryu Ishigori", "Uraume", "Tengen", "Junpei Yoshino", 
   ],
 
   hexatombe: [
@@ -287,4 +282,5 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
+
 
