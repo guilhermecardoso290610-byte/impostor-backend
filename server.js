@@ -19,6 +19,109 @@ let salas = {};
 /* ================== TEMAS ================== */
 
 const temas = {
+  animes: [ 
+      // clássicos eternos
+  "Dragon Ball",
+  "Dragon Ball Z",
+  "Dragon Ball GT",
+  "Dragon Ball Super",
+  "Naruto",
+  "Naruto Shippuden",
+  "One Piece",
+  "Bleach",
+  "Yu Yu Hakusho",
+  "Cavaleiros do Zodíaco",
+  "Sailor Moon",
+  "Pokémon",
+  "Digimon Adventure",
+  "Digimon Adventure 02",
+  "Inuyasha",
+  "Ranma ½",
+  "Death Note",
+  "Fullmetal Alchemist",
+  "Fullmetal Alchemist: Brotherhood",
+
+  // ação / shounen
+  "Attack on Titan",
+  "Attack on Titan Final Season",
+  "Jujutsu Kaisen",
+  "Jujutsu Kaisen 0",
+  "Demon Slayer",
+  "Demon Slayer: Mugen Train",
+  "My Hero Academia",
+  "My Hero Academia 2",
+  "My Hero Academia 3",
+  "My Hero Academia 4",
+  "My Hero Academia 5",
+  "My Hero Academia 6",
+  "Black Clover",
+  "Chainsaw Man",
+  "Tokyo Ghoul",
+  "Tokyo Ghoul √A",
+  "Tokyo Ghoul:re",
+  "Fire Force",
+  "Blue Exorcist",
+  "Akame ga Kill",
+  "Fairy Tail",
+  "Fairy Tail Zero",
+  "Fairy Tail Final Series",
+
+  // aventura / fantasia
+  "Sword Art Online",
+  "Sword Art Online II",
+  "Sword Art Online Alicization",
+  "No Game No Life",
+  "Re:Zero",
+  "Overlord",
+  "That Time I Got Reincarnated as a Slime",
+  "The Rising of the Shield Hero",
+  "Hunter x Hunter",
+  "Hunter x Hunter (2011)",
+  "Magi",
+  "Magi: The Kingdom of Magic",
+  "Seven Deadly Sins",
+  "Seven Deadly Sins: Revival of the Commandments",
+  "Seven Deadly Sins: Wrath of the Gods",
+
+  // suspense / psicológico
+  "Steins;Gate",
+  "Erased",
+  "Parasyte",
+  "Another",
+  "Mirai Nikki",
+  "Psycho-Pass",
+  "Death Parade",
+  "Monster",
+  "Tokyo Revengers",
+
+  // esportes / outros
+  "Haikyuu!!",
+  "Haikyuu!! 2nd Season",
+  "Haikyuu!! 3rd Season",
+  "Haikyuu!! To the Top",
+  "Kuroko no Basket",
+  "Free!",
+  "Yuri on Ice",
+
+  // romance / slice of life
+  "Your Name",
+  "A Silent Voice",
+  "Toradora!",
+  "Clannad",
+  "Clannad After Story",
+  "Horimiya",
+  "AnoHana",
+  "Violet Evergarden",
+
+  // isekai populares
+  "Konosuba",
+  "Konosuba 2",
+  "Mushoku Tensei",
+  "Dr. Stone",
+  "Dr. Stone: Stone Wars",
+  "The Promised Neverland",
+  "The Promised Neverland 2"
+    ],
   clashroyale: [
    "Arqueiras (3 elixir)",
 "Rei Esqueleto (4 elixir)",
@@ -519,6 +622,7 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
+
 
 
 
