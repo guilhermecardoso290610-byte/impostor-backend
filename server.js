@@ -406,7 +406,7 @@ const temas = {
   "Escorpião",
   "Mosca",
   "Mosquito"
-  ]
+  ],
 
   animes: [
   // clássicos eternos
@@ -510,7 +510,7 @@ const temas = {
   "Dr. Stone: Stone Wars",
   "The Promised Neverland",
   "The Promised Neverland 2"
-]
+],
 
 };
 
@@ -624,6 +624,7 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
+
 
 
 
