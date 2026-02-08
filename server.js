@@ -257,129 +257,84 @@ const temas = {
   ]
 };
 
+
 /* ================= SALAS ================= */
-/*
-salas[codigo] = {
-  admin,
-  jogadores: [{ id, nome }],
-  tema,
-  palavra,
-  impostor,
-  ultimoImpostor,
-  round,
-  respostas: {},
-  timer
-}
-*/
 let salas = {};
 
 /* ================= FUNÇÕES ================= */
+function gerarCodigo() {
+  return Math.random().toString(36).substring(2, 6).toUpperCase();
+}
+
 function escolherPalavra(tema) {
-  const lista = temas[tema];
+  const lista = temas[tema] || temas.gerais;
   return lista[Math.floor(Math.random() * lista.length)];
 }
 
 function escolherImpostor(jogadores, ultimo) {
-  let possiveis = jogadores.map(j => j.id).filter(id => id !== ultimo);
-  if (possiveis.length === 0) possiveis = jogadores.map(j => j.id);
-  return possiveis[Math.floor(Math.random() * possiveis.length)];
-}
-
-function iniciarRound(codigo) {
-  const sala = salas[codigo];
-  if (!sala) return;
-
-  sala.round++;
-  sala.respostas = {};
-
-  io.to(codigo).emit("novo-round", {
-    round: sala.round
-  });
-
-  clearTimeout(sala.timer);
-  sala.timer = setTimeout(() => {
-    finalizarRound(codigo);
-  }, 40000);
-}
-
-function finalizarRound(codigo) {
-  const sala = salas[codigo];
-  if (!sala) return;
-
-  clearTimeout(sala.timer);
-
-  const lista = sala.jogadores.map(j => ({
-    nome: j.nome,
-    texto: sala.respostas[j.id] || ""
-  }));
-
-  io.to(codigo).emit("mostrar-respostas", {
-    respostas: lista
-  });
+  let possiveis = jogadores.filter(j => j.id !== ultimo);
+  if (possiveis.length === 0) possiveis = jogadores;
+  return possiveis[Math.floor(Math.random() * possiveis.length)].id;
 }
 
 /* ================= SOCKET ================= */
 io.on("connection", socket => {
 
-  socket.on("criar-sala", ({ codigo, nome, tema }) => {
+  socket.on("criarSala", ({ nome }) => {
+    const codigo = gerarCodigo();
+
     salas[codigo] = {
       admin: socket.id,
       jogadores: [{ id: socket.id, nome }],
-      tema,
-      palavra: null,
-      impostor: null,
-      ultimoImpostor: null,
-      round: 0,
-      respostas: {},
-      timer: null
+      tema: "gerais",
+      ultimoImpostor: null
     };
 
     socket.join(codigo);
-    io.to(codigo).emit("atualizar-jogadores", salas[codigo].jogadores);
+
+    socket.emit("salaCriada", { codigo });
+    io.to(codigo).emit("lista", salas[codigo].jogadores);
   });
 
-  socket.on("entrar-sala", ({ codigo, nome }) => {
+  socket.on("entrarSala", ({ codigo, nome }) => {
     const sala = salas[codigo];
     if (!sala) return;
 
     sala.jogadores.push({ id: socket.id, nome });
     socket.join(codigo);
 
-    io.to(codigo).emit("atualizar-jogadores", sala.jogadores);
+    io.to(codigo).emit("lista", sala.jogadores);
+  });
+
+  socket.on("mudarTema", ({ codigo, tema }) => {
+    if (salas[codigo]) {
+      salas[codigo].tema = tema;
+    }
   });
 
   socket.on("jogar", codigo => {
     const sala = salas[codigo];
     if (!sala || socket.id !== sala.admin) return;
 
-    sala.palavra = escolherPalavra(sala.tema);
-    sala.impostor = escolherImpostor(sala.jogadores, sala.ultimoImpostor);
-    sala.ultimoImpostor = sala.impostor;
-    sala.round = 0;
+    const palavra = escolherPalavra(sala.tema);
+    const impostor = escolherImpostor(sala.jogadores, sala.ultimoImpostor);
+    sala.ultimoImpostor = impostor;
 
     sala.jogadores.forEach(j => {
-      io.to(j.id).emit("papel", {
-        impostor: j.id === sala.impostor,
-        palavra: j.id === sala.impostor ? null : sala.palavra
+      io.to(j.id).emit("resultado", {
+        tipo: j.id === impostor ? "impostor" : "normal",
+        palavra
       });
     });
-
-    iniciarRound(codigo);
   });
 
-  socket.on("enviar-resposta", ({ codigo, texto }) => {
+  socket.on("expulsar", ({ codigo, jogadorId }) => {
     const sala = salas[codigo];
-    if (!sala) return;
+    if (!sala || socket.id !== sala.admin) return;
 
-    sala.respostas[socket.id] = texto;
-
-    if (Object.keys(sala.respostas).length === sala.jogadores.length) {
-      finalizarRound(codigo);
-    }
-  });
-
-  socket.on("proximo-round", codigo => {
-    iniciarRound(codigo);
+    sala.jogadores = sala.jogadores.filter(j => j.id !== jogadorId);
+    io.to(jogadorId).emit("expulso");
+    io.to(codigo).emit("lista", sala.jogadores);
   });
 
   socket.on("disconnect", () => {
@@ -390,7 +345,7 @@ io.on("connection", socket => {
       if (sala.jogadores.length === 0) {
         delete salas[codigo];
       } else {
-        io.to(codigo).emit("atualizar-jogadores", sala.jogadores);
+        io.to(codigo).emit("lista", sala.jogadores);
       }
     }
   });
