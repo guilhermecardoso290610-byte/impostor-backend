@@ -260,6 +260,7 @@ const temas = {
     "Ideia", "Pensamento", "Sonho", "Verdade", "Mentira"
   ]
 };
+
 /* =========================
    SALAS
 ========================= */
@@ -271,7 +272,6 @@ const salas = {};
 function gerarCodigo() {
   return Math.random().toString(36).substring(2, 6).toUpperCase();
 }
-
 function escolher(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -289,6 +289,7 @@ io.on("connection", socket => {
     salas[codigo] = {
       codigo,
       admin: socket.id,
+      tema: "gerais",
       palavra: "",
       impostor: "",
       jogadores: {},
@@ -326,23 +327,24 @@ io.on("connection", socket => {
     atualizarLista(codigo);
   });
 
-  /* ===== ATUALIZAR LISTA ===== */
+  /* ===== LISTA ===== */
   function atualizarLista(codigo) {
     const sala = salas[codigo];
     if (!sala) return;
 
     io.to(codigo).emit(
       "lista",
-      Object.values(sala.jogadores).filter(j => j.vivo)
+      Object.values(sala.jogadores)
     );
   }
 
-  /* ===== INICIAR JOGO ===== */
-  socket.on("jogar", codigo => {
+  /* ===== JOGAR ===== */
+  socket.on("jogar", ({ codigo, tema }) => {
     const sala = salas[codigo];
     if (!sala) return;
     if (socket.id !== sala.admin) return;
 
+    sala.tema = tema;
     iniciarRound(codigo);
   });
 
@@ -351,14 +353,13 @@ io.on("connection", socket => {
   ========================= */
   function iniciarRound(codigo) {
     const sala = salas[codigo];
-
     sala.fase = "palavra";
     sala.envios = {};
     sala.votos = {};
     sala.votaram = {};
 
     const vivos = Object.values(sala.jogadores).filter(j => j.vivo);
-    sala.palavra = escolher(temas.geral);
+    sala.palavra = escolher(temas[sala.tema]);
     sala.impostor = escolher(vivos).id;
 
     vivos.forEach(j => {
@@ -384,13 +385,13 @@ io.on("connection", socket => {
     }, 1000);
   }
 
-  /* ===== IMPOSTOR VER PALAVRA (J) ===== */
+  /* ===== IMPOSTOR VER PALAVRA ===== */
   socket.on("pedirPalavra", codigo => {
     const sala = salas[codigo];
     if (!sala) return;
     if (socket.id !== sala.impostor) return;
 
-    socket.emit("palavraSecreta", sala.palavra);
+    socket.emit("mostrarPalavraImpostor", sala.palavra);
   });
 
   /* ===== ENVIAR PALAVRA ===== */
@@ -411,20 +412,30 @@ io.on("connection", socket => {
     if (Object.keys(sala.envios).length === vivos.length) {
       sala.fase = "mostrar";
 
-      vivos.forEach(j => {
-        const texto = sala.envios[j.id];
-        sala.historico.push({
-          nome: j.nome,
-          palavra: texto
-        });
+      let i = 0;
+      const ordem = vivos.map(j => j.id);
+
+      const mostrarProximo = () => {
+        if (i >= ordem.length) {
+          setTimeout(() => iniciarVotacao(codigo), 1000);
+          return;
+        }
+        const id = ordem[i];
+        const j = sala.jogadores[id];
+        const texto = sala.envios[id];
+
+        sala.historico.push({ nome: j.nome, palavra: texto });
 
         io.to(codigo).emit("mostrarResposta", {
           nome: j.nome,
           palavra: texto
         });
-      });
 
-      setTimeout(() => iniciarVotacao(codigo), 3000);
+        i++;
+        setTimeout(mostrarProximo, 3000);
+      };
+
+      mostrarProximo();
     }
   });
 
@@ -439,7 +450,7 @@ io.on("connection", socket => {
 
     Object.values(sala.jogadores)
       .filter(j => j.vivo)
-      .forEach(j => (sala.votos[j.id] = 0));
+      .forEach(j => sala.votos[j.id] = 0);
 
     io.to(codigo).emit("iniciarVotacao", {
       jogadores: Object.values(sala.jogadores).filter(j => j.vivo),
@@ -451,7 +462,6 @@ io.on("connection", socket => {
     sala.timer = setInterval(() => {
       tempo--;
       io.to(codigo).emit("cronometro", tempo);
-
       if (tempo <= 0) {
         clearInterval(sala.timer);
         finalizarVotacao(codigo);
@@ -473,26 +483,25 @@ io.on("connection", socket => {
 
   function finalizarVotacao(codigo) {
     const sala = salas[codigo];
-    sala.fase = "resultado";
 
-    let maisVotado = null;
+    let eliminado = null;
     let max = -1;
-
-    for (let id in sala.votos) {
+    for (const id in sala.votos) {
       if (sala.votos[id] > max) {
         max = sala.votos[id];
-        maisVotado = id;
+        eliminado = id;
       }
     }
 
-    if (maisVotado) {
-      sala.jogadores[maisVotado].vivo = false;
-      io.to(codigo).emit("eliminado", sala.jogadores[maisVotado].nome);
+    if (eliminado) {
+      sala.jogadores[eliminado].vivo = false;
+      io.to(codigo).emit("eliminado", sala.jogadores[eliminado].nome);
     }
 
     const vivos = Object.values(sala.jogadores).filter(j => j.vivo);
+    const impostorVivo = vivos.find(j => j.id === sala.impostor);
 
-    if (vivos.length <= 1 || !vivos.find(j => j.id === sala.impostor)) {
+    if (!impostorVivo || vivos.length <= 1) {
       io.to(codigo).emit("fimDeJogo", {
         impostor: sala.jogadores[sala.impostor]?.nome
       });
