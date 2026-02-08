@@ -321,7 +321,7 @@ io.on("connection", (socket) => {
     // ===== LÓGICA ANTI-REPETIÇÃO =====
     let candidatos = [...sala.jogadores];
 
-    if (sala.repeticoesImpostor >= 2 && sala.ultimoImpostor) {
+    if (sala.repeticoesImpostor >= 1 && sala.ultimoImpostor) {
       candidatos = candidatos.filter(
         j => j.id !== sala.ultimoImpostor
       );
@@ -392,5 +392,6 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
+
 
 
