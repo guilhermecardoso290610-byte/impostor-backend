@@ -5,80 +5,78 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
+app.get("/", (req, res) => {
+  res.send("Servidor do Impostor rodando");
+});
+
 const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-// salas[codigo] = {
-//   admin,
-//   jogadores: [{ id, nome }],
-//   tema,
-//   ultimoImpostor
-// }
 let salas = {};
 
 /* ================== TEMAS ================== */
 
 const temas = {
   clashroyale: [
-    "Arqueiras (3 elixir)", "Rei Esqueleto (4 elixir)", "Rainha Arqueira (5 elixir)", 
-    "Campeão Dourado (4 elixir)", "Cavaleiro (3 elixir)", "Mini P.E.K.K.A (4 elixir)", 
-    "P.E.K.K.A (7 elixir)", "Príncipe (5 elixir)", "Príncipe das Trevas (4 elixir)", 
-    "Valquíria (4 elixir)", "Gigante (5 elixir)", "Gigante Real (6 elixir)", 
-    "Gigante Elétrico (7 elixir)", "Golem (8 elixir)", "Golem de Gelo (2 elixir)", 
-    "Golem de Elixir (3 elixir)", "Balão (5 elixir)", "Corredor (4 elixir)", 
-    "Corredor Montado (5 elixir)", "Porcos Reais (5 elixir)", "Barril de Goblins (3 elixir)", 
-    "Goblins (2 elixir)", "Goblins Lanceiros (2 elixir)", "Goblin com Dardo (3 elixir)", 
-    "Goblin Gigante (6 elixir)", "Goblin Broca (4 elixir)", "Gangue de Goblins (3 elixir)", 
-    "Servos (3 elixir)", "Horda de Servos (5 elixir)", "Esqueletos (1 elixir)", 
-    "Exército de Esqueletos (3 elixir)", "Esqueleto Gigante (6 elixir)", "Morcegos (2 elixir)", 
-    "Bruxa (5 elixir)", "Bruxa Sombria (4 elixir)", "Mago (5 elixir)", "Mago Elétrico (4 elixir)", 
-    "Mago de Gelo (3 elixir)", "Mago da Fênix (4 elixir)", "Executor (5 elixir)", 
-    "Caçador (4 elixir)", "Mosqueteira (4 elixir)", "Três Mosqueteiras (9 elixir)", 
-    "Arqueiro Mágico (4 elixir)", "Bebê Dragão (4 elixir)", "Dragão Infernal (4 elixir)", 
-    "Dragão Elétrico (5 elixir)", "Dragão do Esqueleto (4 elixir)", "Mineiro (3 elixir)", 
-    "Mineiro Poderoso (4 elixir)", "Lenhador (4 elixir)", "Bandida (3 elixir)", 
-    "Fantasma Real (3 elixir)", "Curadora Guerreira (4 elixir)", "Monge (5 elixir)", 
-    "Fênix (4 elixir)", "Fisherman (3 elixir)", "Carrinho de Canhão (5 elixir)", 
-    "Carrinho de Goblins (5 elixir)", "Espírito de Fogo (1 elixir)", "Espírito de Gelo (1 elixir)", 
-    "Espírito Elétrico (1 elixir)", "Espírito Curativo (1 elixir)", "Guardas (3 elixir)", 
-    "Recrutas Reais (7 elixir)", "Aríete de Batalha (4 elixir)", "Máquina Voadora (4 elixir)", 
-    "Porco Gigante (6 elixir)", "Bola de Fogo (4 elixir)", "Flechas (3 elixir)", "Zap (2 elixir)", 
-    "Bola de Neve (2 elixir)", "Veneno (4 elixir)", "Relâmpago (6 elixir)", "Foguete (6 elixir)", 
-    "Terremoto (3 elixir)", "Clone (3 elixir)", "Espelho (variável)", "Congelamento (4 elixir)", 
-    "Fúria (2 elixir)", "Tornado (3 elixir)", "Cemitério (5 elixir)", "Barril de Bárbaro (2 elixir)", 
-    "Entrega Real (3 elixir)", "Canhão (3 elixir)", "Torre Tesla (4 elixir)", 
-    "Cabana de Goblins (5 elixir)", "Cabana de Bárbaros (7 elixir)", "Forno (4 elixir)", 
-    "Coletor de Elixir (6 elixir)", "Jaula de Goblin (4 elixir)", "Torre Inferno (5 elixir)", 
+    "Arqueiras (3 elixir)", "Rei Esqueleto (4 elixir)", "Rainha Arqueira (5 elixir)",
+    "Campeão Dourado (4 elixir)", "Cavaleiro (3 elixir)", "Mini P.E.K.K.A (4 elixir)",
+    "P.E.K.K.A (7 elixir)", "Príncipe (5 elixir)", "Príncipe das Trevas (4 elixir)",
+    "Valquíria (4 elixir)", "Gigante (5 elixir)", "Gigante Real (6 elixir)",
+    "Gigante Elétrico (7 elixir)", "Golem (8 elixir)", "Golem de Gelo (2 elixir)",
+    "Golem de Elixir (3 elixir)", "Balão (5 elixir)", "Corredor (4 elixir)",
+    "Corredor Montado (5 elixir)", "Porcos Reais (5 elixir)", "Barril de Goblins (3 elixir)",
+    "Goblins (2 elixir)", "Goblins Lanceiros (2 elixir)", "Goblin com Dardo (3 elixir)",
+    "Goblin Gigante (6 elixir)", "Goblin Broca (4 elixir)", "Gangue de Goblins (3 elixir)",
+    "Servos (3 elixir)", "Horda de Servos (5 elixir)", "Esqueletos (1 elixir)",
+    "Exército de Esqueletos (3 elixir)", "Esqueleto Gigante (6 elixir)", "Morcegos (2 elixir)",
+    "Bruxa (5 elixir)", "Bruxa Sombria (4 elixir)", "Mago (5 elixir)", "Mago Elétrico (4 elixir)",
+    "Mago de Gelo (3 elixir)", "Mago da Fênix (4 elixir)", "Executor (5 elixir)",
+    "Caçador (4 elixir)", "Mosqueteira (4 elixir)", "Três Mosqueteiras (9 elixir)",
+    "Arqueiro Mágico (4 elixir)", "Bebê Dragão (4 elixir)", "Dragão Infernal (4 elixir)",
+    "Dragão Elétrico (5 elixir)", "Dragão do Esqueleto (4 elixir)", "Mineiro (3 elixir)",
+    "Mineiro Poderoso (4 elixir)", "Lenhador (4 elixir)", "Bandida (3 elixir)",
+    "Fantasma Real (3 elixir)", "Curadora Guerreira (4 elixir)", "Monge (5 elixir)",
+    "Fênix (4 elixir)", "Fisherman (3 elixir)", "Carrinho de Canhão (5 elixir)",
+    "Carrinho de Goblins (5 elixir)", "Espírito de Fogo (1 elixir)", "Espírito de Gelo (1 elixir)",
+    "Espírito Elétrico (1 elixir)", "Espírito Curativo (1 elixir)", "Guardas (3 elixir)",
+    "Recrutas Reais (7 elixir)", "Aríete de Batalha (4 elixir)", "Máquina Voadora (4 elixir)",
+    "Porco Gigante (6 elixir)", "Bola de Fogo (4 elixir)", "Flechas (3 elixir)", "Zap (2 elixir)",
+    "Bola de Neve (2 elixir)", "Veneno (4 elixir)", "Relâmpago (6 elixir)", "Foguete (6 elixir)",
+    "Terremoto (3 elixir)", "Clone (3 elixir)", "Espelho (variável)", "Congelamento (4 elixir)",
+    "Fúria (2 elixir)", "Tornado (3 elixir)", "Cemitério (5 elixir)", "Barril de Bárbaro (2 elixir)",
+    "Entrega Real (3 elixir)", "Canhão (3 elixir)", "Torre Tesla (4 elixir)",
+    "Cabana de Goblins (5 elixir)", "Cabana de Bárbaros (7 elixir)", "Forno (4 elixir)",
+    "Coletor de Elixir (6 elixir)", "Jaula de Goblin (4 elixir)", "Torre Inferno (5 elixir)",
     "Bomb Tower (4 elixir)", "Morteiro (4 elixir)", "X-Besta (6 elixir)"
   ],
 
   jujutsu: [
-    "Yuji Itadori", "Megumi Fushiguro", "Nobara Kugisaki", "Satoru Gojo", "Ryomen Sukuna",
-    "Maki Zenin", "Toge Inumaki", "Panda", "Yuta Okkotsu", "Masamichi Yaga",
-    "Kiyotaka Ijichi", "Shoko Ieiri", "Utahime Iori", "Mei Mei", "Suguru Geto",
-    "Kenjaku", "Mahito", "Jogo", "Hanami", "Dagon", "Choso",
-    "Toji Fushiguro", "Naobito Zenin", "Naoya Zenin", "Mai Zenin", "Kokichi Muta",
-    "Mechamaru", "Aoi Todo", "Kasumi Miwa", "Momo Nishimiya", "Rika Orimoto",
-    "Hajime Kashimo", "Kinji Hakari", "Kirara Hoshi", "Hiromi Higuruma",
-    "Takako Uro", "Ryu Ishigori", "Uraume", "Tengen", "Junpei Yoshino"
+    "Yuji Itadori","Megumi Fushiguro","Nobara Kugisaki","Satoru Gojo","Ryomen Sukuna",
+    "Maki Zenin","Toge Inumaki","Panda","Yuta Okkotsu","Masamichi Yaga",
+    "Kiyotaka Ijichi","Shoko Ieiri","Utahime Iori","Mei Mei","Suguru Geto",
+    "Kenjaku","Mahito","Jogo","Hanami","Dagon","Choso",
+    "Toji Fushiguro","Naobito Zenin","Naoya Zenin","Mai Zenin","Kokichi Muta",
+    "Mechamaru","Aoi Todo","Kasumi Miwa","Momo Nishimiya","Rika Orimoto",
+    "Hajime Kashimo","Kinji Hakari","Kirara Hoshi","Hiromi Higuruma",
+    "Takako Uro","Ryu Ishigori","Uraume","Tengen","Junpei Yoshino"
   ],
 
   hexatombe: [
-    "Cellbit", "Abelha (Dalmo Magno)", "Bagi (Jae-Yoon/Maria)", "Bastet (Henri/Lúcio/Juan)", 
-    "Beamom (Kemi/Lena)", "Calígrafo (Labirinto/Remi)", "Harpia", "Pomba", "Agatha Volkomenn", 
-    "LJoga (Damir Lukic)", "Rakin (Dante)", "Dalmo Magno", "Jae-Yoon", "Jonas Aguiar", 
-    "Kemi", "Labirinto", "Cleo Brisa", "Cristino", "Giovanni Opspor", "Mosto", "Tarrafa", 
-    "Nando", "Alvira", "Raziel", "Sabara", "Velisar", "Zéfero", "Helen Magno", "Manu Magno", 
-    "Paçoqueiro", "Aniquilação", "Anulado", "Arara Sangrenta", "Kerberos", "Quibungo", 
+    "Cellbit","Abelha (Dalmo Magno)","Bagi (Jae-Yoon/Maria)","Bastet (Henri/Lúcio/Juan)",
+    "Beamom (Kemi/Lena)","Calígrafo (Labirinto/Remi)","Harpia","Pomba","Agatha Volkomenn",
+    "LJoga (Damir Lukic)","Rakin (Dante)","Dalmo Magno","Jae-Yoon","Jonas Aguiar",
+    "Kemi","Labirinto","Cleo Brisa","Cristino","Giovanni Opspor","Mosto","Tarrafa",
+    "Nando","Alvira","Raziel","Sabara","Velisar","Zéfero","Helen Magno","Manu Magno",
+    "Paçoqueiro","Aniquilação","Anulado","Arara Sangrenta","Kerberos","Quibungo",
     "Zumbi de Sangue"
   ],
 
   filmes: [
-    "Titanic", "Jurassic Park", "O Exterminador do Futuro", "O Exterminador do Futuro 2", 
-    "De Volta para o Futuro", "De Volta para o Futuro 2", "De Volta para o Futuro 3", 
-    "E.T. – O Extraterrestre", "Forrest Gump", "O Rei Leão", "Toy Story", "Toy Story 2", 
-    "Toy Story 3", "Toy Story 4"
+    "Titanic","Jurassic Park","O Exterminador do Futuro","O Exterminador do Futuro 2",
+    "De Volta para o Futuro","De Volta para o Futuro 2","De Volta para o Futuro 3",
+    "E.T. – O Extraterrestre","Forrest Gump","O Rei Leão","Toy Story","Toy Story 2",
+    "Toy Story 3","Toy Story 4"
   ],
 
   animais: [
@@ -97,32 +95,21 @@ const temas = {
   ],
 
   gerais: [
-    // Móveis
     "Cadeira","Mesa","Sofá","Cama","Travesseiro","Cobertor","Tapete","Armário","Estante","Rack","Poltrona",
-    // Cozinha
     "Geladeira","Fogão","Micro-ondas","Forno","Liquidificador","Mixer","Torradeira","Panela","Prato","Talher",
-    // Eletrônicos
     "Computador","Notebook","Monitor","Teclado","Mouse","Mousepad","Impressora","Scanner","Tablet","Celular","Carregador","Fone de ouvido","Caixa de som",
-    // Luz e ventilação
     "Ventilador","Ar-condicionado","Lâmpada","Abajur","Lanterna","Candeeiro",
-    // Objetos do dia a dia
     "Espelho","Relógio","Calendário","Telefone","Chave","Carteira","Óculos","Mochila","Bolsa","Carteira","Guarda-chuva","Sapato","Tênis",
-    // Internet e informática
     "Internet","Wi-Fi","Senha","Login","Aplicativo","Site","Servidor","Software","Bug","Erro","Sistema","Arquivo","Download","Upload",
-    // Natureza
     "Sol","Lua","Estrela","Chuva","Vento","Fogo","Água","Terra","Neve","Tempestade","Ar","Nuvem","Raio","Relâmpago",
-    // Conceitos abstratos
     "Tempo","Dinheiro","Poder","Controle","Liberdade","Alegria","Tristeza","Raiva","Medo","Ansiedade","Amor","Amizade","Felicidade","Esperança",
     "Ideia","Pensamento","Sonho","Verdade","Mentira","Segredo","Sorte","Destino","Memória","Desejo","Conhecimento","Sabedoria","Imaginação",
-    // Objetos diversos
     "Copo","Garfo","Faca","Colher","Prancha","Bola","Bicicleta","Carro","Moto","Ônibus","Trem","Avião","Navio","Livro","Caneta","Lápis",
     "Papel","Cartão","Envelope","Chaveiro","Relógio de pulso","Pulseira","Brinco","Anel","Camisa","Calça","Casaco","Meia","Sapato","Tênis","Boné","Chapéu",
-    // Diversos domésticos
     "Vassoura","Rodo","Panela","Frigideira","Tábua de cortar","Pano de prato","Toalha","Sabonete","Shampoo","Creme dental","Escova de dente",
     "Papel higiênico","Cadeira de banho","Cadeira de escritório","Prateleira","Porta","Janela","Cortina","Tapete","Almofada","Quadro","Porta-retrato"
   ]
 };
-
 
 /* ================== FUNÇÕES ================== */
 
@@ -133,9 +120,7 @@ function gerarCodigo() {
 /* ================== SOCKET ================== */
 
 io.on("connection", (socket) => {
-  console.log("Conectado:", socket.id);
 
-  // ===== CRIAR SALA =====
   socket.on("criarSala", ({ nome }) => {
     const codigo = gerarCodigo();
 
@@ -152,7 +137,6 @@ io.on("connection", (socket) => {
     io.to(codigo).emit("lista", salas[codigo].jogadores);
   });
 
-  // ===== ENTRAR NA SALA =====
   socket.on("entrarSala", ({ codigo, nome }) => {
     const sala = salas[codigo];
     if (!sala) return;
@@ -163,7 +147,6 @@ io.on("connection", (socket) => {
     io.to(codigo).emit("lista", sala.jogadores);
   });
 
-  // ===== MUDAR TEMA (ADMIN) =====
   socket.on("mudarTema", ({ codigo, tema }) => {
     const sala = salas[codigo];
     if (!sala) return;
@@ -173,7 +156,6 @@ io.on("connection", (socket) => {
     sala.tema = tema;
   });
 
-  // ===== JOGAR =====
   socket.on("jogar", (codigo) => {
     const sala = salas[codigo];
     if (!sala) return;
@@ -187,78 +169,27 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const lista = temas[sala.tema] || temas.clashroyale;
+    const lista = temas[sala.tema];
     const palavra = lista[Math.floor(Math.random() * lista.length)];
 
-    // ===== NÃO REPETE IMPOSTOR =====
     let candidatos = [...sala.jogadores];
-
     if (sala.ultimoImpostor) {
-      candidatos = candidatos.filter(
-        j => j.id !== sala.ultimoImpostor
-      );
+      candidatos = candidatos.filter(j => j.id !== sala.ultimoImpostor);
     }
+    if (candidatos.length === 0) candidatos = [...sala.jogadores];
 
-    if (candidatos.length === 0) {
-      candidatos = [...sala.jogadores];
-    }
-
-    const impostor =
-      candidatos[Math.floor(Math.random() * candidatos.length)];
-
+    const impostor = candidatos[Math.floor(Math.random() * candidatos.length)];
     sala.ultimoImpostor = impostor.id;
 
-    // ===== ENVIA RESULTADO =====
     sala.jogadores.forEach(j => {
-      if (j.id === impostor.id) {
-        io.to(j.id).emit("resultado", {
-          tipo: "impostor",
-          palavra: palavra
-        });
-      } else {
-        io.to(j.id).emit("resultado", {
-          tipo: "normal",
-          palavra: palavra
-        });
-      }
+      io.to(j.id).emit("resultado", {
+        tipo: j.id === impostor.id ? "impostor" : "normal",
+        palavra
+      });
     });
   });
 
-  // ===== EXPULSAR =====
-  socket.on("expulsar", ({ codigo, jogadorId }) => {
-    const sala = salas[codigo];
-    if (!sala) return;
-    if (socket.id !== sala.admin) return;
-
-    sala.jogadores = sala.jogadores.filter(j => j.id !== jogadorId);
-
-    io.to(jogadorId).emit("expulso");
-    io.sockets.sockets.get(jogadorId)?.leave(codigo);
-
-    io.to(codigo).emit("lista", sala.jogadores);
-  });
-
-  // ===== DESCONECTAR =====
-  socket.on("disconnect", () => {
-    for (const codigo in salas) {
-      const sala = salas[codigo];
-
-      sala.jogadores = sala.jogadores.filter(j => j.id !== socket.id);
-
-      if (sala.admin === socket.id && sala.jogadores.length > 0) {
-        sala.admin = sala.jogadores[0].id;
-      }
-
-      if (sala.jogadores.length === 0) {
-        delete salas[codigo];
-      } else {
-        io.to(codigo).emit("lista", sala.jogadores);
-      }
-    }
-  });
 });
-
-/* ================== START ================== */
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
