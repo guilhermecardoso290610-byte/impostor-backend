@@ -5,8 +5,16 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
+// 👉 rota HTTP (OBRIGATÓRIA no Railway)
+app.get("/", (req, res) => {
+  res.send("Impostor backend online");
+});
+
 const io = new Server(server, {
-  cors: { origin: "*" }
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
 });
 
 /* ================= TEMAS ================= */
@@ -256,8 +264,6 @@ const temas = {
     "Ideia","Pensamento","Sonho","Verdade","Mentira"
   ]
 };
-
-
 /* ================= SALAS ================= */
 let salas = {};
 
@@ -279,6 +285,7 @@ function escolherImpostor(jogadores, ultimo) {
 
 /* ================= SOCKET ================= */
 io.on("connection", socket => {
+  console.log("🟢 Cliente conectado:", socket.id);
 
   socket.on("criarSala", ({ nome }) => {
     const codigo = gerarCodigo();
@@ -294,6 +301,8 @@ io.on("connection", socket => {
 
     socket.emit("salaCriada", { codigo });
     io.to(codigo).emit("lista", salas[codigo].jogadores);
+
+    console.log(`✅ Sala criada: ${codigo}`);
   });
 
   socket.on("entrarSala", ({ codigo, nome }) => {
@@ -338,6 +347,8 @@ io.on("connection", socket => {
   });
 
   socket.on("disconnect", () => {
+    console.log("🔴 Cliente desconectou:", socket.id);
+
     for (const codigo in salas) {
       const sala = salas[codigo];
       sala.jogadores = sala.jogadores.filter(j => j.id !== socket.id);
@@ -352,6 +363,7 @@ io.on("connection", socket => {
 });
 
 /* ================= SERVER ================= */
-server.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("🚀 Servidor rodando na porta", PORT);
 });
