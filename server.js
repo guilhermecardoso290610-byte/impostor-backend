@@ -9,16 +9,7 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-// salas[codigo] = {
-//   admin,
-//   jogadores: [{ id, nome }],
-//   tema,
-//   ultimoImpostor
-// }
-let salas = {};
-
-/* ================== TEMAS ================== */
-
+/* ================= TEMAS ================= */
 const temas = {
   clashroyale: [
     "Arqueiras (3 elixir)",
@@ -119,36 +110,102 @@ const temas = {
   ],
 
   jujutsu: [
-    "Yuji Itadori","Megumi Fushiguro","Nobara Kugisaki","Satoru Gojo",
-    "Ryomen Sukuna","Maki Zenin","Toge Inumaki","Panda","Yuta Okkotsu",
-    "Masamichi Yaga","Kiyotaka Ijichi","Shoko Ieiri","Utahime Iori",
-    "Mei Mei","Suguru Geto","Kenjaku","Mahito","Jogo","Hanami",
-    "Dagon","Choso","Toji Fushiguro","Naobito Zenin","Naoya Zenin",
-    "Mai Zenin","Kokichi Muta","Mechamaru","Aoi Todo","Kasumi Miwa",
-    "Momo Nishimiya","Rika Orimoto","Hajime Kashimo","Kinji Hakari",
-    "Kirara Hoshi","Hiromi Higuruma","Takako Uro","Ryu Ishigori",
-    "Uraume","Tengen","Junpei Yoshino"
+    "Yuji Itadori",
+    "Megumi Fushiguro",
+    "Nobara Kugisaki",
+    "Satoru Gojo",
+    "Ryomen Sukuna",
+    "Maki Zenin",
+    "Toge Inumaki",
+    "Panda",
+    "Yuta Okkotsu",
+    "Masamichi Yaga",
+    "Kiyotaka Ijichi",
+    "Shoko Ieiri",
+    "Utahime Iori",
+    "Mei Mei",
+    "Suguru Geto",
+    "Kenjaku",
+    "Mahito",
+    "Jogo",
+    "Hanami",
+    "Dagon",
+    "Choso",
+    "Toji Fushiguro",
+    "Naobito Zenin",
+    "Naoya Zenin",
+    "Mai Zenin",
+    "Kokichi Muta",
+    "Mechamaru",
+    "Aoi Todo",
+    "Kasumi Miwa",
+    "Momo Nishimiya",
+    "Rika Orimoto",
+    "Hajime Kashimo",
+    "Kinji Hakari",
+    "Kirara Hoshi",
+    "Hiromi Higuruma",
+    "Takako Uro",
+    "Ryu Ishigori",
+    "Uraume",
+    "Tengen",
+    "Junpei Yoshino"
   ],
 
   hexatombe: [
-    "Cellbit","Abelha (Dalmo Magno)","Bagi (Jae-Yoon/Maria)",
-    "Bastet (Henri/Lúcio/Juan)","Beamom (Kemi/Lena)",
-    "Calígrafo (Labirinto/Remi)","Harpia","Pomba",
-    "Agatha Volkomenn","LJoga (Damir Lukic)","Rakin (Dante)",
-    "Dalmo Magno","Jae-Yoon","Jonas Aguiar","Kemi","Labirinto",
-    "Cleo Brisa","Cristino","Giovanni Opspor","Mosto","Tarrafa",
-    "Nando","Alvira","Raziel","Sabara","Velisar","Zéfero",
-    "Helen Magno","Manu Magno","Paçoqueiro","Aniquilação",
-    "Anulado","Arara Sangrenta","Kerberos","Quibungo",
+    "Cellbit",
+    "Abelha (Dalmo Magno)",
+    "Bagi (Jae-Yoon/Maria)",
+    "Bastet (Henri/Lúcio/Juan)",
+    "Beamom (Kemi/Lena)",
+    "Calígrafo (Labirinto/Remi)",
+    "Harpia",
+    "Pomba",
+    "Agatha Volkomenn",
+    "LJoga (Damir Lukic)",
+    "Rakin (Dante)",
+    "Dalmo Magno",
+    "Jae-Yoon",
+    "Jonas Aguiar",
+    "Kemi",
+    "Labirinto",
+    "Cleo Brisa",
+    "Cristino",
+    "Giovanni Opspor",
+    "Mosto",
+    "Tarrafa",
+    "Nando",
+    "Alvira",
+    "Raziel",
+    "Sabara",
+    "Velisar",
+    "Zéfero",
+    "Helen Magno",
+    "Manu Magno",
+    "Paçoqueiro",
+    "Aniquilação",
+    "Anulado",
+    "Arara Sangrenta",
+    "Kerberos",
+    "Quibungo",
     "Zumbi de Sangue"
   ],
 
   filmes: [
-    "Titanic","Jurassic Park","O Exterminador do Futuro",
-    "O Exterminador do Futuro 2","De Volta para o Futuro",
-    "De Volta para o Futuro 2","De Volta para o Futuro 3",
-    "E.T. – O Extraterrestre","Forrest Gump","O Rei Leão",
-    "Toy Story","Toy Story 2","Toy Story 3","Toy Story 4"
+    "Titanic",
+    "Jurassic Park",
+    "O Exterminador do Futuro",
+    "O Exterminador do Futuro 2",
+    "De Volta para o Futuro",
+    "De Volta para o Futuro 2",
+    "De Volta para o Futuro 3",
+    "E.T. – O Extraterrestre",
+    "Forrest Gump",
+    "O Rei Leão",
+    "Toy Story",
+    "Toy Story 2",
+    "Toy Story 3",
+    "Toy Story 4"
   ],
 
   animais: [
@@ -162,159 +219,184 @@ const temas = {
   ],
 
   animes: [
-    "Dragon Ball","Dragon Ball Z","Naruto","Naruto Shippuden",
-    "One Piece","Bleach","Death Note","Attack on Titan",
-    "Jujutsu Kaisen","Demon Slayer","My Hero Academia",
-    "Chainsaw Man","Tokyo Ghoul","Sword Art Online",
-    "Hunter x Hunter","Fullmetal Alchemist","Haikyuu!!",
-    "Your Name","A Silent Voice","Dr. Stone"
+    "Dragon Ball",
+    "Dragon Ball Z",
+    "Naruto",
+    "Naruto Shippuden",
+    "One Piece",
+    "Bleach",
+    "Death Note",
+    "Attack on Titan",
+    "Jujutsu Kaisen",
+    "Demon Slayer",
+    "My Hero Academia",
+    "Chainsaw Man",
+    "Tokyo Ghoul",
+    "Sword Art Online",
+    "Hunter x Hunter",
+    "Fullmetal Alchemist",
+    "Haikyuu!!",
+    "Your Name",
+    "A Silent Voice",
+    "Dr. Stone"
   ],
 
-gerais: [ 
-  "Cadeira","Mesa","Sofá","Cama","Travesseiro","Cobertor","Tapete","Armário", "Geladeira","Fogão","Micro-ondas","Forno","Liquidificador","Ventilador", "Ar-condicionado","Lâmpada","Abajur","Espelho","Relógio","Calendário", "Telefone","Celular","Tablet","Computador","Notebook","Monitor", "Teclado","Mouse","Mousepad","Impressora","Scanner","Carregador", "Cabo","Extensão","Tomada","Bateria","Controle remoto","Caixa de som", // Papelaria / estudo "Caderno","Caneta","Lápis","Borracha","Apontador","Marca-texto", "Régua","Agenda","Livro","Revista","Folha","Prova","Trabalho", "Mochila","Estojo", // Lugares "Casa","Apartamento","Prédio","Rua","Avenida","Bairro","Cidade","País", "Escola","Faculdade","Universidade","Hospital","Clínica","Farmácia", "Supermercado","Padaria","Shopping","Loja","Cinema","Teatro", "Restaurante","Lanchonete","Bar","Café","Praça","Parque","Praia", "Piscina","Estádio","Ginásio","Academia","Hotel","Motel","Aeroporto", "Rodoviária","Porto","Estacionamento","Garagem","Posto de gasolina", // Transporte "Carro","Moto","Ônibus","Caminhão","Bicicleta","Patinete", "Trem","Metrô","Avião","Helicóptero","Barco","Navio","Submarino", // Tecnologia / internet "Internet","Wi-Fi","Senha","Login","Cadastro","Perfil", "Aplicativo","Site","Servidor","Nuvem","Backup","Atualização", "Bug","Erro","Sistema","Programa","Arquivo","Pasta","Download", "Upload","Streaming","Notificação","Mensagem","E-mail", "Inteligência Artificial","Algoritmo","Banco de dados", // Natureza "Sol","Lua","Estrela","Planeta","Terra","Mar","Oceano","Rio","Lago", "Cachoeira","Floresta","Selva","Mata","Deserto","Montanha","Colina", "Vulcão","Neve","Gelo","Chuva","Tempestade","Vento","Furacão", "Nuvem","Arco-íris","Fogo","Terra","Água","Ar", // Animais (bem geral) "Cachorro","Gato","Cavalo","Vaca","Boi","Porco","Galinha","Galo", "Pato","Ovelha","Cabra","Leão","Tigre","Lobo","Raposa","Urso", "Elefante","Girafa","Zebra","Rinoceronte","Hipopótamo", "Macaco","Gorila","Chimpanzé","Coala","Canguru", "Águia","Falcão","Coruja","Pombo","Papagaio","Arara", "Peixe","Tubarão","Golfinho","Baleia","Polvo","Lula", "Cobra","Lagarto","Jacaré","Crocodilo","Tartaruga", "Formiga","Abelha","Mosca","Aranha","Escorpião", // Comida e bebida "Arroz","Feijão","Macarrão","Lasanha","Pizza","Hambúrguer", "Batata frita","Salada","Carne","Frango","Peixe","Ovo", "Pão","Bolo","Torta","Biscoito","Chocolate","Sorvete", "Doce","Açúcar","Sal","Café","Chá","Leite","Suco", "Refrigerante","Água","Energético", // Ações / verbos "Correr","Andar","Pular","Sentar","Levantar","Dormir","Acordar", "Comer","Beber","Estudar","Trabalhar","Viajar","Dirigir", "Esperar","Escolher","Decidir","Criar","Destruir","Construir", "Comprar","Vender","Pagar","Economizar","Gastar", "Ganhar","Perder","Vencer","Falhar", // Conceitos / ideias "Tempo","Espaço","Dinheiro","Preço","Valor","Qualidade", "Velocidade","Força","Energia","Poder","Controle","Liberdade", "Responsabilidade","Regra","Lei","Ordem","Caos", "Problema","Solução","Plano","Objetivo","Meta","Desafio", "Segredo","Mistério","Erro","Acerto","Risco","Chance", // Emoções / estados "Alegria","Felicidade","Tristeza","Raiva","Medo","Ansiedade", "Calma","Estresse","Surpresa","Tédio","Sono","Cansaço", "Coragem","Vergonha","Orgulho","Confiança","Dúvida", // Coisas abstratas / ótimas pro impostor "Ideia","Pensamento","Memória","Sonho","Pesadelo", "História","Futuro","Passado","Presente", "Realidade","Imaginação","Verdade","Mentira", "Vitória","Derrota","Sucesso","Fracasso" 
-  ] 
+  gerais: [
+    "Cadeira","Mesa","Sofá","Cama","Travesseiro","Cobertor","Tapete","Armário",
+    "Geladeira","Fogão","Micro-ondas","Forno","Liquidificador","Ventilador",
+    "Ar-condicionado","Lâmpada","Abajur","Espelho","Relógio","Calendário",
+    "Telefone","Celular","Tablet","Computador","Notebook","Monitor",
+    "Teclado","Mouse","Mousepad","Impressora","Scanner","Carregador",
+    "Cabo","Extensão","Tomada","Bateria","Controle remoto","Caixa de som",
+    "Internet","Wi-Fi","Senha","Login","Aplicativo","Site","Servidor",
+    "Bug","Erro","Sistema","Arquivo","Download","Upload",
+    "Sol","Lua","Estrela","Chuva","Vento","Fogo","Água","Ar",
+    "Tempo","Dinheiro","Poder","Controle","Liberdade",
+    "Alegria","Tristeza","Raiva","Medo","Ansiedade",
+    "Ideia","Pensamento","Sonho","Verdade","Mentira"
+  ]
 };
 
+/* ================= SALAS ================= */
+/*
+salas[codigo] = {
+  admin,
+  jogadores: [{ id, nome }],
+  tema,
+  palavra,
+  impostor,
+  ultimoImpostor,
+  round,
+  respostas: {},
+  timer
+}
+*/
+let salas = {};
 
-/* ================== FUNÇÕES ================== */
-
-function gerarCodigo() {
-  return Math.random().toString(36).substring(2, 7).toUpperCase();
+/* ================= FUNÇÕES ================= */
+function escolherPalavra(tema) {
+  const lista = temas[tema];
+  return lista[Math.floor(Math.random() * lista.length)];
 }
 
-/* ================== SOCKET ================== */
+function escolherImpostor(jogadores, ultimo) {
+  let possiveis = jogadores.map(j => j.id).filter(id => id !== ultimo);
+  if (possiveis.length === 0) possiveis = jogadores.map(j => j.id);
+  return possiveis[Math.floor(Math.random() * possiveis.length)];
+}
 
-io.on("connection", (socket) => {
-  console.log("Conectado:", socket.id);
+function iniciarRound(codigo) {
+  const sala = salas[codigo];
+  if (!sala) return;
 
-  // ===== CRIAR SALA =====
-  socket.on("criarSala", ({ nome }) => {
-    const codigo = gerarCodigo();
+  sala.round++;
+  sala.respostas = {};
 
+  io.to(codigo).emit("novo-round", {
+    round: sala.round
+  });
+
+  clearTimeout(sala.timer);
+  sala.timer = setTimeout(() => {
+    finalizarRound(codigo);
+  }, 40000);
+}
+
+function finalizarRound(codigo) {
+  const sala = salas[codigo];
+  if (!sala) return;
+
+  clearTimeout(sala.timer);
+
+  const lista = sala.jogadores.map(j => ({
+    nome: j.nome,
+    texto: sala.respostas[j.id] || ""
+  }));
+
+  io.to(codigo).emit("mostrar-respostas", {
+    respostas: lista
+  });
+}
+
+/* ================= SOCKET ================= */
+io.on("connection", socket => {
+
+  socket.on("criar-sala", ({ codigo, nome, tema }) => {
     salas[codigo] = {
       admin: socket.id,
       jogadores: [{ id: socket.id, nome }],
-      tema: "clashroyale",
-      ultimoImpostor: null
+      tema,
+      palavra: null,
+      impostor: null,
+      ultimoImpostor: null,
+      round: 0,
+      respostas: {},
+      timer: null
     };
 
     socket.join(codigo);
-
-    socket.emit("salaCriada", codigo);
-    io.to(codigo).emit("lista", salas[codigo].jogadores);
+    io.to(codigo).emit("atualizar-jogadores", salas[codigo].jogadores);
   });
 
-  // ===== ENTRAR NA SALA =====
-  socket.on("entrarSala", ({ codigo, nome }) => {
+  socket.on("entrar-sala", ({ codigo, nome }) => {
     const sala = salas[codigo];
     if (!sala) return;
 
     sala.jogadores.push({ id: socket.id, nome });
     socket.join(codigo);
 
-    io.to(codigo).emit("lista", sala.jogadores);
+    io.to(codigo).emit("atualizar-jogadores", sala.jogadores);
   });
 
-  // ===== MUDAR TEMA (ADMIN) =====
-  socket.on("mudarTema", ({ codigo, tema }) => {
+  socket.on("jogar", codigo => {
     const sala = salas[codigo];
-    if (!sala) return;
-    if (socket.id !== sala.admin) return;
-    if (!temas[tema]) return;
+    if (!sala || socket.id !== sala.admin) return;
 
-    sala.tema = tema;
-  });
+    sala.palavra = escolherPalavra(sala.tema);
+    sala.impostor = escolherImpostor(sala.jogadores, sala.ultimoImpostor);
+    sala.ultimoImpostor = sala.impostor;
+    sala.round = 0;
 
-  // ===== JOGAR =====
-  socket.on("jogar", (codigo) => {
-    const sala = salas[codigo];
-    if (!sala) return;
-    if (socket.id !== sala.admin) return;
-
-    if (sala.jogadores.length < 2) {
-      io.to(socket.id).emit("resultado", {
-        tipo: "erro",
-        palavra: "Precisa de pelo menos 2 jogadores"
-      });
-      return;
-    }
-
-    const lista = temas[sala.tema] || temas.clashroyale;
-    const palavra = lista[Math.floor(Math.random() * lista.length)];
-
-    // ===== NÃO REPETE IMPOSTOR =====
-    let candidatos = [...sala.jogadores];
-
-    if (sala.ultimoImpostor) {
-      candidatos = candidatos.filter(
-        j => j.id !== sala.ultimoImpostor
-      );
-    }
-
-    if (candidatos.length === 0) {
-      candidatos = [...sala.jogadores];
-    }
-
-    const impostor =
-      candidatos[Math.floor(Math.random() * candidatos.length)];
-
-    sala.ultimoImpostor = impostor.id;
-
-    // ===== ENVIA RESULTADO =====
     sala.jogadores.forEach(j => {
-      if (j.id === impostor.id) {
-        io.to(j.id).emit("resultado", {
-          tipo: "impostor",
-          palavra: palavra
-        });
-      } else {
-        io.to(j.id).emit("resultado", {
-          tipo: "normal",
-          palavra: palavra
-        });
-      }
+      io.to(j.id).emit("papel", {
+        impostor: j.id === sala.impostor,
+        palavra: j.id === sala.impostor ? null : sala.palavra
+      });
     });
+
+    iniciarRound(codigo);
   });
 
-  // ===== EXPULSAR =====
-  socket.on("expulsar", ({ codigo, jogadorId }) => {
+  socket.on("enviar-resposta", ({ codigo, texto }) => {
     const sala = salas[codigo];
     if (!sala) return;
-    if (socket.id !== sala.admin) return;
 
-    sala.jogadores = sala.jogadores.filter(j => j.id !== jogadorId);
+    sala.respostas[socket.id] = texto;
 
-    io.to(jogadorId).emit("expulso");
-    io.sockets.sockets.get(jogadorId)?.leave(codigo);
-
-    io.to(codigo).emit("lista", sala.jogadores);
+    if (Object.keys(sala.respostas).length === sala.jogadores.length) {
+      finalizarRound(codigo);
+    }
   });
 
-  // ===== DESCONECTAR =====
+  socket.on("proximo-round", codigo => {
+    iniciarRound(codigo);
+  });
+
   socket.on("disconnect", () => {
     for (const codigo in salas) {
       const sala = salas[codigo];
-
       sala.jogadores = sala.jogadores.filter(j => j.id !== socket.id);
-
-      if (sala.admin === socket.id && sala.jogadores.length > 0) {
-        sala.admin = sala.jogadores[0].id;
-      }
 
       if (sala.jogadores.length === 0) {
         delete salas[codigo];
       } else {
-        io.to(codigo).emit("lista", sala.jogadores);
+        io.to(codigo).emit("atualizar-jogadores", sala.jogadores);
       }
     }
   });
 });
 
-/* ================== START ================== */
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log("Servidor rodando na porta", PORT);
+/* ================= SERVER ================= */
+server.listen(3000, () => {
+  console.log("Servidor rodando na porta 3000");
 });
-
-
