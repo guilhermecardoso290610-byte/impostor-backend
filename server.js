@@ -1,18 +1,20 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-const PORT = process.env.PORT || 3000;
-
-/* ===== DADOS ===== */
-const salas = {};
-const palavras = { 
+/* =========================
+   TEMAS / PALAVRAS
+========================= */
+const temas = { 
   clashroyale: [
     "Arqueiras (3 elixir)",
     "Rei Esqueleto (4 elixir)",
@@ -258,70 +260,108 @@ const palavras = {
     "Ideia", "Pensamento", "Sonho", "Verdade", "Mentira"
   ]
 };
+/* =========================
+   SALAS
+========================= */
+const salas = {};
 
+/* =========================
+   UTILS
+========================= */
 function gerarCodigo() {
   return Math.random().toString(36).substring(2, 6).toUpperCase();
 }
 
-/* ===== SOCKET ===== */
+function escolher(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/* =========================
+   SOCKET
+========================= */
 io.on("connection", socket => {
+  console.log("🟢 conectado:", socket.id);
 
   /* ===== CRIAR SALA ===== */
   socket.on("criarSala", ({ nome }) => {
     const codigo = gerarCodigo();
 
     salas[codigo] = {
-      jogadores: [],
+      codigo,
       admin: socket.id,
       palavra: "",
       impostor: "",
-      envios: 0,
-      respostas: [],
-      votos: {}
+      jogadores: {},
+      fase: "lobby",
+      envios: {},
+      historico: [],
+      votos: {},
+      votaram: {},
+      timer: null
     };
 
-    salas[codigo].jogadores.push({
+    salas[codigo].jogadores[socket.id] = {
       id: socket.id,
       nome,
       vivo: true
-    });
+    };
 
     socket.join(codigo);
     socket.emit("salaCriada", { codigo });
-    io.to(codigo).emit("lista", salas[codigo].jogadores);
+    atualizarLista(codigo);
   });
 
   /* ===== ENTRAR SALA ===== */
   socket.on("entrarSala", ({ codigo, nome }) => {
-    if (!salas[codigo]) return;
-
-    salas[codigo].jogadores.push({
-      id: socket.id,
-      nome,
-      vivo: true
-    });
-
-    socket.join(codigo);
-    io.to(codigo).emit("lista", salas[codigo].jogadores);
-  });
-
-  /* ===== INICIAR JOGO ===== */
-  socket.on("jogar", ({ codigo, tema }) => {
     const sala = salas[codigo];
     if (!sala) return;
 
-    const lista = palavras[tema] || palavras.gerais;
-    sala.palavra = lista[Math.floor(Math.random() * lista.length)];
+    sala.jogadores[socket.id] = {
+      id: socket.id,
+      nome,
+      vivo: true
+    };
 
-    const impostor =
-      sala.jogadores[Math.floor(Math.random() * sala.jogadores.length)];
-    sala.impostor = impostor.id;
+    socket.join(codigo);
+    atualizarLista(codigo);
+  });
 
-    sala.envios = 0;
-    sala.respostas = [];
+  /* ===== ATUALIZAR LISTA ===== */
+  function atualizarLista(codigo) {
+    const sala = salas[codigo];
+    if (!sala) return;
+
+    io.to(codigo).emit(
+      "lista",
+      Object.values(sala.jogadores).filter(j => j.vivo)
+    );
+  }
+
+  /* ===== INICIAR JOGO ===== */
+  socket.on("jogar", codigo => {
+    const sala = salas[codigo];
+    if (!sala) return;
+    if (socket.id !== sala.admin) return;
+
+    iniciarRound(codigo);
+  });
+
+  /* =========================
+     ROUND
+  ========================= */
+  function iniciarRound(codigo) {
+    const sala = salas[codigo];
+
+    sala.fase = "palavra";
+    sala.envios = {};
     sala.votos = {};
+    sala.votaram = {};
 
-    sala.jogadores.forEach(j => {
+    const vivos = Object.values(sala.jogadores).filter(j => j.vivo);
+    sala.palavra = escolher(temas.geral);
+    sala.impostor = escolher(vivos).id;
+
+    vivos.forEach(j => {
       if (j.id === sala.impostor) {
         io.to(j.id).emit("resultado", { tipo: "impostor" });
       } else {
@@ -332,105 +372,149 @@ io.on("connection", socket => {
       }
     });
 
-    /* CONTAGEM */
-    let tempo = 3;
-    const timer = setInterval(() => {
-      io.to(codigo).emit("contagem", tempo);
-      tempo--;
-      if (tempo < 0) {
-        clearInterval(timer);
-        io.to(codigo).emit("faseEscrita", sala.jogadores.length);
+    let cont = 3;
+    const intervalo = setInterval(() => {
+      io.to(codigo).emit("contagem", cont);
+      cont--;
+      if (cont < 0) {
+        clearInterval(intervalo);
+        sala.fase = "escrita";
+        io.to(codigo).emit("faseEscrita", vivos.length);
       }
     }, 1000);
-  });
+  }
 
-  /* ===== IMPOSTOR PEDE PALAVRA ===== */
+  /* ===== IMPOSTOR VER PALAVRA (J) ===== */
   socket.on("pedirPalavra", codigo => {
     const sala = salas[codigo];
     if (!sala) return;
-    if (socket.id === sala.impostor) {
-      socket.emit("mostrarPalavraImpostor", sala.palavra);
-    }
+    if (socket.id !== sala.impostor) return;
+
+    socket.emit("palavraSecreta", sala.palavra);
   });
 
-  /* ===== ENVIAR RESPOSTA ===== */
+  /* ===== ENVIAR PALAVRA ===== */
   socket.on("enviarPalavra", ({ codigo, palavra }) => {
     const sala = salas[codigo];
     if (!sala) return;
+    if (sala.fase !== "escrita") return;
+    if (sala.envios[socket.id]) return;
 
-    if (sala.respostas.find(r => r.id === socket.id)) return;
+    sala.envios[socket.id] = palavra;
 
-    const jogador = sala.jogadores.find(j => j.id === socket.id);
-    if (!jogador) return;
-
-    sala.respostas.push({
-      id: socket.id,
-      nome: jogador.nome,
-      palavra
-    });
-
-    sala.envios++;
     io.to(codigo).emit("contadorEnvios", {
-      enviados: sala.envios
+      enviados: Object.keys(sala.envios).length
     });
 
-    /* SÓ MOSTRA QUANDO TODOS ENVIARAM */
-    if (sala.envios === sala.jogadores.length) {
-      let i = 0;
-      const mostrar = setInterval(() => {
-        if (i >= sala.respostas.length) {
-          clearInterval(mostrar);
-          io.to(codigo).emit("liberarVotacao", sala.respostas);
-          return;
-        }
-        io.to(codigo).emit("mostrarResposta", sala.respostas[i]);
-        i++;
-      }, 2000);
+    const vivos = Object.values(sala.jogadores).filter(j => j.vivo);
+
+    if (Object.keys(sala.envios).length === vivos.length) {
+      sala.fase = "mostrar";
+
+      vivos.forEach(j => {
+        const texto = sala.envios[j.id];
+        sala.historico.push({
+          nome: j.nome,
+          palavra: texto
+        });
+
+        io.to(codigo).emit("mostrarResposta", {
+          nome: j.nome,
+          palavra: texto
+        });
+      });
+
+      setTimeout(() => iniciarVotacao(codigo), 3000);
     }
   });
 
-  /* ===== VOTAÇÃO ===== */
+  /* =========================
+     VOTAÇÃO
+  ========================= */
+  function iniciarVotacao(codigo) {
+    const sala = salas[codigo];
+    sala.fase = "votacao";
+    sala.votos = {};
+    sala.votaram = {};
+
+    Object.values(sala.jogadores)
+      .filter(j => j.vivo)
+      .forEach(j => (sala.votos[j.id] = 0));
+
+    io.to(codigo).emit("iniciarVotacao", {
+      jogadores: Object.values(sala.jogadores).filter(j => j.vivo),
+      historico: sala.historico,
+      tempo: 150
+    });
+
+    let tempo = 150;
+    sala.timer = setInterval(() => {
+      tempo--;
+      io.to(codigo).emit("cronometro", tempo);
+
+      if (tempo <= 0) {
+        clearInterval(sala.timer);
+        finalizarVotacao(codigo);
+      }
+    }, 1000);
+  }
+
   socket.on("votar", ({ codigo, alvo }) => {
     const sala = salas[codigo];
     if (!sala) return;
+    if (sala.fase !== "votacao") return;
+    if (sala.votaram[socket.id]) return;
 
-    sala.votos[alvo] = (sala.votos[alvo] || 0) + 1;
+    sala.votaram[socket.id] = true;
+    sala.votos[alvo]++;
 
-    const totalVotos = Object.values(sala.votos).reduce((a, b) => a + b, 0);
-
-    if (totalVotos === sala.jogadores.length) {
-      let eliminado = null;
-      let maior = 0;
-
-      for (let id in sala.votos) {
-        if (sala.votos[id] > maior) {
-          maior = sala.votos[id];
-          eliminado = id;
-        }
-      }
-
-      const morreu = sala.jogadores.find(j => j.id === eliminado);
-      if (morreu) morreu.vivo = false;
-
-      io.to(codigo).emit("lista", sala.jogadores);
-    }
+    io.to(codigo).emit("atualizarVotos", sala.votos);
   });
 
-  /* ===== SAIR ===== */
-  socket.on("disconnect", () => {
-    for (let codigo in salas) {
-      salas[codigo].jogadores =
-        salas[codigo].jogadores.filter(j => j.id !== socket.id);
+  function finalizarVotacao(codigo) {
+    const sala = salas[codigo];
+    sala.fase = "resultado";
 
-      if (salas[codigo].jogadores.length === 0) {
-        delete salas[codigo];
-      } else {
-        io.to(codigo).emit("lista", salas[codigo].jogadores);
+    let maisVotado = null;
+    let max = -1;
+
+    for (let id in sala.votos) {
+      if (sala.votos[id] > max) {
+        max = sala.votos[id];
+        maisVotado = id;
+      }
+    }
+
+    if (maisVotado) {
+      sala.jogadores[maisVotado].vivo = false;
+      io.to(codigo).emit("eliminado", sala.jogadores[maisVotado].nome);
+    }
+
+    const vivos = Object.values(sala.jogadores).filter(j => j.vivo);
+
+    if (vivos.length <= 1 || !vivos.find(j => j.id === sala.impostor)) {
+      io.to(codigo).emit("fimDeJogo", {
+        impostor: sala.jogadores[sala.impostor]?.nome
+      });
+      return;
+    }
+
+    setTimeout(() => iniciarRound(codigo), 3000);
+  }
+
+  /* ===== DESCONECTAR ===== */
+  socket.on("disconnect", () => {
+    for (const codigo in salas) {
+      const sala = salas[codigo];
+      if (sala.jogadores[socket.id]) {
+        delete sala.jogadores[socket.id];
+        atualizarLista(codigo);
       }
     }
   });
 });
 
-server.listen(PORT, () => {
-  console.log("Servidor rodando na porta", PORT);
+/* ========================= */
+server.listen(3000, () => {
+  console.log("🔥 servidor rodando na porta 3000");
 });
