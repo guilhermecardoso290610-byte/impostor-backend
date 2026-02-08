@@ -13,8 +13,7 @@ const io = new Server(server, {
 //   admin,
 //   jogadores: [{ id, nome }],
 //   tema,
-//   ultimoImpostor,
-//   repeticoesImpostor
+//   ultimoImpostor
 // }
 let salas = {};
 
@@ -170,89 +169,25 @@ const temas = {
     "Hunter x Hunter","Fullmetal Alchemist","Haikyuu!!",
     "Your Name","A Silent Voice","Dr. Stone"
   ],
-    
+
   gerais: [
-  // Objetos comuns
-  "Cadeira","Mesa","Sofá","Cama","Travesseiro","Cobertor","Tapete","Armário",
-  "Geladeira","Fogão","Micro-ondas","Forno","Liquidificador","Ventilador",
-  "Ar-condicionado","Lâmpada","Abajur","Espelho","Relógio","Calendário",
-  "Telefone","Celular","Tablet","Computador","Notebook","Monitor",
-  "Teclado","Mouse","Mousepad","Impressora","Scanner","Carregador",
-  "Cabo","Extensão","Tomada","Bateria","Controle remoto","Caixa de som",
-
-  // Papelaria / estudo
-  "Caderno","Caneta","Lápis","Borracha","Apontador","Marca-texto",
-  "Régua","Agenda","Livro","Revista","Folha","Prova","Trabalho",
-  "Mochila","Estojo",
-
-  // Lugares
-  "Casa","Apartamento","Prédio","Rua","Avenida","Bairro","Cidade","País",
-  "Escola","Faculdade","Universidade","Hospital","Clínica","Farmácia",
-  "Supermercado","Padaria","Shopping","Loja","Cinema","Teatro",
-  "Restaurante","Lanchonete","Bar","Café","Praça","Parque","Praia",
-  "Piscina","Estádio","Ginásio","Academia","Hotel","Motel","Aeroporto",
-  "Rodoviária","Porto","Estacionamento","Garagem","Posto de gasolina",
-
-  // Transporte
-  "Carro","Moto","Ônibus","Caminhão","Bicicleta","Patinete",
-  "Trem","Metrô","Avião","Helicóptero","Barco","Navio","Submarino",
-
-  // Tecnologia / internet
-  "Internet","Wi-Fi","Senha","Login","Cadastro","Perfil",
-  "Aplicativo","Site","Servidor","Nuvem","Backup","Atualização",
-  "Bug","Erro","Sistema","Programa","Arquivo","Pasta","Download",
-  "Upload","Streaming","Notificação","Mensagem","E-mail",
-  "Inteligência Artificial","Algoritmo","Banco de dados",
-
-  // Natureza
-  "Sol","Lua","Estrela","Planeta","Terra","Mar","Oceano","Rio","Lago",
-  "Cachoeira","Floresta","Selva","Mata","Deserto","Montanha","Colina",
-  "Vulcão","Neve","Gelo","Chuva","Tempestade","Vento","Furacão",
-  "Nuvem","Arco-íris","Fogo","Terra","Água","Ar",
-
-  // Animais (bem geral)
-  "Cachorro","Gato","Cavalo","Vaca","Boi","Porco","Galinha","Galo",
-  "Pato","Ovelha","Cabra","Leão","Tigre","Lobo","Raposa","Urso",
-  "Elefante","Girafa","Zebra","Rinoceronte","Hipopótamo",
-  "Macaco","Gorila","Chimpanzé","Coala","Canguru",
-  "Águia","Falcão","Coruja","Pombo","Papagaio","Arara",
-  "Peixe","Tubarão","Golfinho","Baleia","Polvo","Lula",
-  "Cobra","Lagarto","Jacaré","Crocodilo","Tartaruga",
-  "Formiga","Abelha","Mosca","Aranha","Escorpião",
-
-  // Comida e bebida
-  "Arroz","Feijão","Macarrão","Lasanha","Pizza","Hambúrguer",
-  "Batata frita","Salada","Carne","Frango","Peixe","Ovo",
-  "Pão","Bolo","Torta","Biscoito","Chocolate","Sorvete",
-  "Doce","Açúcar","Sal","Café","Chá","Leite","Suco",
-  "Refrigerante","Água","Energético",
-
-  // Ações / verbos
-  "Correr","Andar","Pular","Sentar","Levantar","Dormir","Acordar",
-  "Comer","Beber","Estudar","Trabalhar","Viajar","Dirigir",
-  "Esperar","Escolher","Decidir","Criar","Destruir","Construir",
-  "Comprar","Vender","Pagar","Economizar","Gastar",
-  "Ganhar","Perder","Vencer","Falhar",
-
-  // Conceitos / ideias
-  "Tempo","Espaço","Dinheiro","Preço","Valor","Qualidade",
-  "Velocidade","Força","Energia","Poder","Controle","Liberdade",
-  "Responsabilidade","Regra","Lei","Ordem","Caos",
-  "Problema","Solução","Plano","Objetivo","Meta","Desafio",
-  "Segredo","Mistério","Erro","Acerto","Risco","Chance",
-
-  // Emoções / estados
-  "Alegria","Felicidade","Tristeza","Raiva","Medo","Ansiedade",
-  "Calma","Estresse","Surpresa","Tédio","Sono","Cansaço",
-  "Coragem","Vergonha","Orgulho","Confiança","Dúvida",
-
-  // Coisas abstratas / ótimas pro impostor
-  "Ideia","Pensamento","Memória","Sonho","Pesadelo",
-  "História","Futuro","Passado","Presente",
-  "Realidade","Imaginação","Verdade","Mentira",
-  "Vitória","Derrota","Sucesso","Fracasso"
-]
+    "Cadeira","Mesa","Sofá","Cama","Travesseiro","Cobertor","Tapete","Armário",
+    "Geladeira","Fogão","Micro-ondas","Forno","Liquidificador","Ventilador",
+    "Ar-condicionado","Lâmpada","Abajur","Espelho","Relógio","Calendário",
+    "Telefone","Celular","Tablet","Computador","Notebook","Monitor",
+    "Teclado","Mouse","Mousepad","Impressora","Scanner","Carregador",
+    "Caderno","Caneta","Lápis","Borracha","Livro","Mochila",
+    "Casa","Rua","Cidade","Escola","Hospital","Supermercado",
+    "Carro","Moto","Ônibus","Trem","Avião","Internet","Senha",
+    "Sol","Lua","Mar","Floresta","Montanha","Chuva",
+    "Arroz","Feijão","Pizza","Hambúrguer","Café","Água",
+    "Correr","Dormir","Viajar","Trabalhar","Estudar",
+    "Tempo","Dinheiro","Segredo","Erro","Solução",
+    "Alegria","Raiva","Medo","Coragem","Dúvida",
+    "Ideia","Sonho","Verdade","Mentira","Vitória","Fracasso"
+  ]
 };
+
 
 /* ================== FUNÇÕES ================== */
 
@@ -273,8 +208,7 @@ io.on("connection", (socket) => {
       admin: socket.id,
       jogadores: [{ id: socket.id, nome }],
       tema: "clashroyale",
-      ultimoImpostor: null,
-      repeticoesImpostor: 0
+      ultimoImpostor: null
     };
 
     socket.join(codigo);
@@ -311,17 +245,20 @@ io.on("connection", (socket) => {
     if (socket.id !== sala.admin) return;
 
     if (sala.jogadores.length < 2) {
-      io.to(socket.id).emit("resultado", "⚠️ Precisa de pelo menos 2 jogadores");
+      io.to(socket.id).emit("resultado", {
+        tipo: "erro",
+        palavra: "Precisa de pelo menos 2 jogadores"
+      });
       return;
     }
 
     const lista = temas[sala.tema] || temas.clashroyale;
     const palavra = lista[Math.floor(Math.random() * lista.length)];
 
-    // ===== LÓGICA ANTI-REPETIÇÃO =====
+    // ===== NÃO REPETE IMPOSTOR =====
     let candidatos = [...sala.jogadores];
 
-    if (sala.repeticoesImpostor >= 1 && sala.ultimoImpostor) {
+    if (sala.ultimoImpostor) {
       candidatos = candidatos.filter(
         j => j.id !== sala.ultimoImpostor
       );
@@ -334,20 +271,20 @@ io.on("connection", (socket) => {
     const impostor =
       candidatos[Math.floor(Math.random() * candidatos.length)];
 
-    // atualiza histórico
-    if (impostor.id === sala.ultimoImpostor) {
-      sala.repeticoesImpostor++;
-    } else {
-      sala.ultimoImpostor = impostor.id;
-      sala.repeticoesImpostor = 1;
-    }
+    sala.ultimoImpostor = impostor.id;
 
-    // envia resultados
+    // ===== ENVIA RESULTADO =====
     sala.jogadores.forEach(j => {
       if (j.id === impostor.id) {
-        io.to(j.id).emit("resultado", "❌ VOCÊ É O IMPOSTOR");
+        io.to(j.id).emit("resultado", {
+          tipo: "impostor",
+          palavra: palavra
+        });
       } else {
-        io.to(j.id).emit("resultado", "PALAVRA: " + palavra);
+        io.to(j.id).emit("resultado", {
+          tipo: "normal",
+          palavra: palavra
+        });
       }
     });
   });
@@ -392,6 +329,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log("Servidor rodando na porta", PORT);
 });
-
-
-
