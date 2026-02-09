@@ -6,187 +6,194 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static(__dirname + "/public"));
+app.use(express.static("public"));
 
-/* ================= TEMAS ================= */
+const salas = {};
 
-const temas = {
+/* ================= TEMAS COMPLETOS ================= */
+
+const TEMAS = {
+
   clashroyale: [
-    "Arqueiras (3 elixir)","Rei Esqueleto (4 elixir)","Rainha Arqueira (5 elixir)",
-    "Campeão Dourado (4 elixir)","Cavaleiro (3 elixir)","Mini P.E.K.K.A (4 elixir)",
-    "P.E.K.K.A (7 elixir)","Príncipe (5 elixir)","Príncipe das Trevas (4 elixir)",
-    "Valquíria (4 elixir)","Gigante (5 elixir)","Gigante Real (6 elixir)",
-    "Gigante Elétrico (7 elixir)","Golem (8 elixir)","Golem de Gelo (2 elixir)",
-    "Golem de Elixir (3 elixir)","Balão (5 elixir)","Corredor (4 elixir)",
-    "Corredor Montado (5 elixir)","Porcos Reais (5 elixir)","Barril de Goblins (3 elixir)",
-    "Goblins (2 elixir)","Goblins Lanceiros (2 elixir)","Goblin com Dardo (3 elixir)",
-    "Goblin Gigante (6 elixir)","Goblin Broca (4 elixir)","Gangue de Goblins (3 elixir)",
-    "Servos (3 elixir)","Horda de Servos (5 elixir)","Esqueletos (1 elixir)",
-    "Exército de Esqueletos (3 elixir)","Esqueleto Gigante (6 elixir)","Morcegos (2 elixir)",
-    "Bruxa (5 elixir)","Bruxa Sombria (4 elixir)","Mago (5 elixir)","Mago Elétrico (4 elixir)",
-    "Mago de Gelo (3 elixir)","Mago da Fênix (4 elixir)","Executor (5 elixir)",
-    "Caçador (4 elixir)","Mosqueteira (4 elixir)","Três Mosqueteiras (9 elixir)",
-    "Arqueiro Mágico (4 elixir)","Bebê Dragão (4 elixir)","Dragão Infernal (4 elixir)",
-    "Dragão Elétrico (5 elixir)","Dragão do Esqueleto (4 elixir)","Mineiro (3 elixir)",
-    "Mineiro Poderoso (4 elixir)","Lenhador (4 elixir)","Bandida (3 elixir)",
-    "Fantasma Real (3 elixir)","Curadora Guerreira (4 elixir)","Monge (5 elixir)",
-    "Fênix (4 elixir)","Fisherman (3 elixir)","Carrinho de Canhão (5 elixir)",
-    "Carrinho de Goblins (5 elixir)","Espírito de Fogo (1 elixir)","Espírito de Gelo (1 elixir)",
-    "Espírito Elétrico (1 elixir)","Espírito Curativo (1 elixir)","Guardas (3 elixir)",
-    "Recrutas Reais (7 elixir)","Aríete de Batalha (4 elixir)","Máquina Voadora (4 elixir)",
-    "Porco Gigante (6 elixir)","Bola de Fogo (4 elixir)","Flechas (3 elixir)","Zap (2 elixir)",
-    "Bola de Neve (2 elixir)","Veneno (4 elixir)","Relâmpago (6 elixir)","Foguete (6 elixir)",
-    "Terremoto (3 elixir)","Clone (3 elixir)","Espelho (variável)","Congelamento (4 elixir)",
-    "Fúria (2 elixir)","Tornado (3 elixir)","Cemitério (5 elixir)","Barril de Bárbaro (2 elixir)",
-    "Entrega Real (3 elixir)","Canhão (3 elixir)","Torre Tesla (4 elixir)",
-    "Cabana de Goblins (5 elixir)","Cabana de Bárbaros (7 elixir)","Forno (4 elixir)",
-    "Coletor de Elixir (6 elixir)","Jaula de Goblin (4 elixir)","Torre Inferno (5 elixir)",
-    "Bomb Tower (4 elixir)","Morteiro (4 elixir)","X-Besta (6 elixir)"
+    "Arqueiras","Rei Esqueleto","Rainha Arqueira","Campeão Dourado","Cavaleiro",
+    "Mini P.E.K.K.A","P.E.K.K.A","Príncipe","Príncipe das Trevas","Valquíria",
+    "Gigante","Gigante Real","Gigante Elétrico","Golem","Golem de Gelo",
+    "Balão","Corredor","Porcos Reais","Barril de Goblins","Goblins",
+    "Goblins Lanceiros","Goblin com Dardo","Goblin Gigante","Servos",
+    "Horda de Servos","Esqueletos","Exército de Esqueletos","Morcegos",
+    "Bruxa","Bruxa Sombria","Mago","Mago Elétrico","Mago de Gelo",
+    "Executor","Caçador","Mosqueteira","Três Mosqueteiras","Arqueiro Mágico",
+    "Bebê Dragão","Dragão Infernal","Dragão Elétrico","Mineiro","Lenhador",
+    "Bandida","Fantasma Real","Fênix","Espírito de Fogo","Espírito de Gelo",
+    "Guardas","Recrutas Reais","Bola de Fogo","Flechas","Zap","Veneno",
+    "Relâmpago","Foguete","Congelamento","Tornado","Cemitério",
+    "Canhão","Torre Tesla","Torre Inferno","Morteiro","X-Besta"
   ],
 
   jujutsu: [
     "Yuji Itadori","Megumi Fushiguro","Nobara Kugisaki","Satoru Gojo","Ryomen Sukuna",
-    "Maki Zenin","Toge Inumaki","Panda","Yuta Okkotsu","Masamichi Yaga",
-    "Kiyotaka Ijichi","Shoko Ieiri","Utahime Iori","Mei Mei","Suguru Geto",
+    "Maki Zenin","Toge Inumaki","Panda","Yuta Okkotsu","Suguru Geto",
     "Kenjaku","Mahito","Jogo","Hanami","Dagon","Choso","Toji Fushiguro",
-    "Naobito Zenin","Naoya Zenin","Mai Zenin","Kokichi Muta","Mechamaru",
-    "Aoi Todo","Kasumi Miwa","Momo Nishimiya","Rika Orimoto","Hajime Kashimo",
-    "Kinji Hakari","Kirara Hoshi","Hiromi Higuruma","Takako Uro","Ryu Ishigori",
-    "Uraume","Tengen","Junpei Yoshino"
+    "Naobito Zenin","Mai Zenin","Aoi Todo","Kasumi Miwa","Rika Orimoto"
   ],
 
   hexatombe: [
-    "Cellbit","Abelha (Dalmo Magno)","Bagi (Jae-Yoon/Maria)","Bastet (Henri/Lúcio/Juan)",
-    "Beamom (Kemi/Lena)","Calígrafo (Labirinto/Remi)","Harpia","Pomba","Agatha Volkomenn",
-    "LJoga (Damir Lukic)","Rakin (Dante)","Dalmo Magno","Jae-Yoon","Jonas Aguiar",
-    "Kemi","Labirinto","Cleo Brisa","Cristino","Giovanni Opspor","Mosto","Tarrafa",
-    "Nando","Alvira","Raziel","Sabara","Velisar","Zéfero","Helen Magno","Manu Magno",
-    "Paçoqueiro","Aniquilação","Anulado","Arara Sangrenta","Kerberos","Quibungo",
-    "Zumbi de Sangue"
+    "Cellbit","Bagi","Bastet","Beamom","Calígrafo","Harpia","Pomba",
+    "Agatha","Rakin","Dalmo","Jae-Yoon","Kemi","Labirinto","Cleo",
+    "Cristino","Mosto","Tarrafa","Raziel","Zéfero","Manu","Aniquilação",
+    "Arara Sangrenta","Kerberos","Quibungo","Zumbi de Sangue"
   ],
 
   filmes: [
-    "Titanic","Jurassic Park","O Exterminador do Futuro","O Exterminador do Futuro 2",
-    "De Volta para o Futuro","De Volta para o Futuro 2","De Volta para o Futuro 3",
-    "E.T. – O Extraterrestre","Forrest Gump","O Rei Leão","Toy Story","Toy Story 2",
-    "Toy Story 3","Toy Story 4"
+    "Titanic","Jurassic Park","O Exterminador do Futuro",
+    "De Volta para o Futuro","Forrest Gump","O Rei Leão",
+    "Toy Story","Harry Potter","Vingadores","Homem-Aranha",
+    "Batman","Coringa","Matrix","Interestelar"
   ],
 
   animais: [
-    "Cachorro","Gato","Cavalo","Vaca","Porco","Ovelha","Cabra","Galinha","Galo","Pato",
-    "Coelho","Hamster","Leão","Tigre","Elefante","Girafa","Zebra","Rinoceronte",
-    "Hipopótamo","Urso","Lobo","Raposa","Macaco","Gorila","Águia","Coruja","Papagaio",
-    "Cobra","Jacaré","Tartaruga","Sapo","Tubarão","Golfinho","Baleia","Polvo",
-    "Caranguejo","Borboleta","Abelha","Formiga","Aranha","Mosquito"
+    "Cachorro","Gato","Cavalo","Vaca","Porco","Ovelha","Coelho",
+    "Leão","Tigre","Elefante","Girafa","Zebra","Urso","Lobo",
+    "Raposa","Macaco","Águia","Coruja","Cobra","Jacaré",
+    "Tubarão","Golfinho","Baleia","Polvo","Borboleta","Abelha"
   ],
 
   animes: [
-    "Dragon Ball","Dragon Ball Z","Naruto","Naruto Shippuden","One Piece","Bleach",
-    "Death Note","Attack on Titan","Jujutsu Kaisen","Demon Slayer","My Hero Academia",
-    "Chainsaw Man","Tokyo Ghoul","Sword Art Online","Hunter x Hunter","Fullmetal Alchemist",
-    "Haikyuu!!","Your Name","A Silent Voice","Dr. Stone"
+    "Dragon Ball","Naruto","One Piece","Bleach","Death Note",
+    "Attack on Titan","Jujutsu Kaisen","Demon Slayer",
+    "My Hero Academia","Chainsaw Man","Tokyo Ghoul",
+    "Hunter x Hunter","Fullmetal Alchemist","Haikyuu"
   ],
 
   gerais: [
-    "Cadeira","Mesa","Sofá","Cama","Travesseiro","Cobertor","Tapete","Armário","Estante","Rack","Poltrona",
-    "Geladeira","Fogão","Micro-ondas","Forno","Liquidificador","Mixer","Torradeira","Panela","Prato","Talher",
-    "Computador","Notebook","Monitor","Teclado","Mouse","Mousepad","Impressora","Scanner","Tablet","Celular",
-    "Carregador","Fone de ouvido","Caixa de som","Ventilador","Ar-condicionado","Lâmpada","Abajur","Lanterna",
-    "Espelho","Relógio","Calendário","Telefone","Chave","Carteira","Óculos","Mochila","Bolsa","Guarda-chuva",
-    "Sapato","Tênis","Internet","Wi-Fi","Senha","Login","Aplicativo","Site","Servidor","Software","Bug","Erro",
-    "Sistema","Arquivo","Download","Upload"
+    "Cadeira","Mesa","Sofá","Cama","Travesseiro","Geladeira","Fogão",
+    "Computador","Notebook","Teclado","Mouse","Celular","Internet",
+    "Wi-Fi","Senha","Aplicativo","Servidor","Software","Bug","Erro",
+    "Arquivo","Download","Upload","Relógio","Chave","Carteira",
+    "Óculos","Mochila","Guarda-chuva","Tênis"
   ]
 };
 
-/* ================= LÓGICA DO JOGO ================= */
-
-let salas = {};
-
-function gerarCodigo() {
-  return Math.random().toString(36).substring(2,7).toUpperCase();
-}
+/* ================= FUNÇÃO PALAVRA ================= */
 
 function escolherPalavra() {
-  const listaTemas = Object.values(temas);
-  const temaAleatorio = listaTemas[Math.floor(Math.random()*listaTemas.length)];
-  return temaAleatorio[Math.floor(Math.random()*temaAleatorio.length)];
+  const temas = Object.keys(TEMAS);
+  const tema = temas[Math.floor(Math.random() * temas.length)];
+  const lista = TEMAS[tema];
+  return lista[Math.floor(Math.random() * lista.length)];
 }
 
-io.on("connection",(socket)=>{
+/* ================= SOCKET ================= */
 
-  socket.on("criarSala",(nome)=>{
-    const codigo = gerarCodigo();
+io.on("connection", (socket) => {
+
+  socket.on("criarSala", (codigo, nome) => {
     salas[codigo] = {
       jogadores: [],
       palavra: "",
-      impostor: null
+      impostor: null,
+      votos: {},
+      emVotacao: false
     };
 
     socket.join(codigo);
-    socket.sala = codigo;
-    socket.nome = nome;
+    salas[codigo].jogadores.push({ id: socket.id, nome });
 
-    salas[codigo].jogadores.push({id:socket.id,nome});
-    socket.emit("salaCriada",codigo);
-    io.to(codigo).emit("atualizarJogadores",salas[codigo].jogadores);
+    socket.data.sala = codigo;
+    socket.data.nome = nome;
+
+    io.to(codigo).emit("atualizarJogadores", salas[codigo].jogadores);
   });
 
-  socket.on("entrarSala",(codigo,nome)=>{
-    if(!salas[codigo]) return;
+  socket.on("entrarSala", (codigo, nome) => {
+    if (!salas[codigo]) return;
+
     socket.join(codigo);
-    socket.sala = codigo;
-    socket.nome = nome;
+    salas[codigo].jogadores.push({ id: socket.id, nome });
 
-    salas[codigo].jogadores.push({id:socket.id,nome});
-    io.to(codigo).emit("atualizarJogadores",salas[codigo].jogadores);
+    socket.data.sala = codigo;
+    socket.data.nome = nome;
+
+    io.to(codigo).emit("atualizarJogadores", salas[codigo].jogadores);
   });
 
-  socket.on("iniciarRodada",()=>{
-    const sala = salas[socket.sala];
-    if(!sala) return;
+  socket.on("comecarRodada", () => {
+    const sala = salas[socket.data.sala];
+    if (!sala) return;
 
     sala.palavra = escolherPalavra();
-    const jogadores = sala.jogadores;
-    sala.impostor = jogadores[Math.floor(Math.random()*jogadores.length)].id;
+    sala.votos = {};
+    sala.emVotacao = false;
 
-    jogadores.forEach(j=>{
-      if(j.id===sala.impostor){
-        io.to(j.id).emit("resultado",{tipo:"impostor",palavra:sala.palavra});
-      }else{
-        io.to(j.id).emit("resultado",{tipo:"normal",palavra:sala.palavra});
+    const jogadores = sala.jogadores;
+    const impostorIndex = Math.floor(Math.random() * jogadores.length);
+    sala.impostor = jogadores[impostorIndex].id;
+
+    jogadores.forEach(j => {
+      if (j.id === sala.impostor) {
+        io.to(j.id).emit("receberPalavra", "IMPOSTOR");
+      } else {
+        io.to(j.id).emit("receberPalavra", sala.palavra);
       }
     });
   });
 
-  socket.on("pedirPalavra",()=>{
-    const sala = salas[socket.sala];
-    if(!sala) return;
-    if(socket.id===sala.impostor){
-      socket.emit("palavraImpostor",sala.palavra);
+  socket.on("iniciarVotacao", () => {
+    const sala = salas[socket.data.sala];
+    if (!sala) return;
+
+    sala.emVotacao = true;
+    sala.votos = {};
+
+    io.to(socket.data.sala).emit("votacaoIniciada");
+  });
+
+  socket.on("votar", (idVotado) => {
+    const sala = salas[socket.data.sala];
+    if (!sala || !sala.emVotacao) return;
+
+    sala.votos[socket.id] = idVotado;
+
+    if (Object.keys(sala.votos).length === sala.jogadores.length) {
+
+      const contagem = {};
+
+      Object.values(sala.votos).forEach(v => {
+        contagem[v] = (contagem[v] || 0) + 1;
+      });
+
+      let maisVotado = null;
+      let max = 0;
+
+      for (let id in contagem) {
+        if (contagem[id] > max) {
+          max = contagem[id];
+          maisVotado = id;
+        }
+      }
+
+      const eraImpostor = maisVotado === sala.impostor;
+
+      io.to(socket.data.sala).emit("resultadoVotacao", {
+        expulso: maisVotado,
+        eraImpostor,
+        impostor: sala.impostor,
+        palavra: sala.palavra
+      });
     }
   });
 
-  socket.on("iniciarVotacao",()=>{
-    io.to(socket.sala).emit("abrirVotacao");
-  });
+  socket.on("disconnect", () => {
+    const salaCodigo = socket.data.sala;
+    if (!salas[salaCodigo]) return;
 
-  socket.on("votar",(idVotado)=>{
-    const sala = salas[socket.sala];
-    if(!sala) return;
+    salas[salaCodigo].jogadores =
+      salas[salaCodigo].jogadores.filter(j => j.id !== socket.id);
 
-    const acertou = idVotado === sala.impostor;
-    io.to(socket.sala).emit("resultadoVotacao",{
-      acertou,
-      impostor:sala.impostor
-    });
-  });
-
-  socket.on("disconnect",()=>{
-    const sala = salas[socket.sala];
-    if(!sala) return;
-    sala.jogadores = sala.jogadores.filter(j=>j.id!==socket.id);
-    io.to(socket.sala).emit("atualizarJogadores",sala.jogadores);
+    io.to(salaCodigo).emit("atualizarJogadores", salas[salaCodigo].jogadores);
   });
 });
 
-server.listen(3000,()=>console.log("Servidor rodando")); 
+server.listen(3000, () => {
+  console.log("Servidor rodando na porta 3000");
+});
